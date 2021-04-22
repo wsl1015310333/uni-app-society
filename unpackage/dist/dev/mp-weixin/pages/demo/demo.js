@@ -144,14 +144,67 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 var _default =
 {
   data: function data() {
-    return {};
+    return {
+      list1: ["篮球", "足球", "排球"],
+      list2: [{ name: "篮球", id: "laqiu" },
+      { name: "足球", id: "zhuqiu" },
+      { name: "paiqiu", id: "paiqiu" }],
+
+      list3: [
+      {
+        name: "广东",
+        list: ["广州", "深圳"] },
+
+      {
+        name: "四川",
+        list: ["四川1", "四川2"] }],
+
+
+
+
+      objlist: {
+        name1: "篮球",
+        name2: "足球",
+        name4: "羽毛球" } };
+
+
 
 
   },
-  methods: {} };exports.default = _default;
+  methods: {
+
+    changeShow: function changeShow() {
+      this.isshow = !this.isshow;
+    },
+    changeAge: function changeAge() {
+      this.age += 11;
+    } } };exports.default = _default;
 
 /***/ }),
 /* 17 */

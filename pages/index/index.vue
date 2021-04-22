@@ -4,7 +4,7 @@
 
 		<!-- <text class="iconfont icon-shouye1" style="font-size: 100rpx;color: red;"></text> -->
 <view class="animate__animated"
-  hover-class="animate__pulse faste"
+  hover-class="animate__pulse"
    style="border: 1rpx solid #333333;padding: 20rpx;">
    点击效果
    </view>

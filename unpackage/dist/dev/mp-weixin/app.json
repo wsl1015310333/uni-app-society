@@ -4,7 +4,7 @@
     "pages/news/news",
     "pages/msg/msg",
     "pages/my/my",
-    "pages/demo/demo"
+    "pages/index/index"
   ],
   "subPackages": [],
   "window": {

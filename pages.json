@@ -35,7 +35,7 @@
             
         }
         ,{
-            "path" : "pages/demo/demo",
+            "path" : "pages/index/index",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "demo",

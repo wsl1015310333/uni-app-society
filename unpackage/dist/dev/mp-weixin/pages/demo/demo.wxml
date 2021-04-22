@@ -1,1 +1,1 @@
-<view><view class="view-box animate__animated  " hover-stay-time="2000" hover-class="view-box-hover animate__bounceIn">第一个view</view></view>
+<view><block wx:for="{{objlist}}" wx:for-item="val2" wx:for-index="index2" wx:key="index2"><block><view>{{index2+"-"+val2}}</view></block></block></view>
