@@ -1,0 +1,91 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/demo/demo",
+			"style": {
+				"navigationBarTitleText": "首页",
+				"enablePullDownRefresh": false
+			}
+		}
+	    ,{
+            "path" : "pages/news/news",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "新闻",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/msg/msg",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "消息",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/my/my",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/demo/demo",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "demo",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar":{
+		"color":"#323232",
+		"selectedColor":"#ED6384",
+		"backgroundColor":"#FFFFFF",
+		"borderStyle":"black",
+		"list":[
+			{
+				"pagePath":"pages/demo/demo",
+				"text":"首页",
+				"selectedIconPath":"static/tabbar/homeed.png",
+				"iconPath":"static/tabbar/home.png",
+				"navigationBarTitleText":"首页"
+				
+			},{
+				"pagePath":"pages/news/news",
+				"text":"新闻",
+				"selectedIconPath":"static/tabbar/homeed.png",
+				"iconPath":"static/tabbar/home.png",
+				"navigationBarTitleText":"新闻"
+				
+			},{
+				"pagePath":"pages/msg/msg",
+				"text":"消息",
+				"selectedIconPath":"static/tabbar/homeed.png",
+				"iconPath":"static/tabbar/home.png",
+				"navigationBarTitleText":"消息"
+				
+			},{
+				"pagePath":"pages/my/my",
+				"text":"我的",
+				"selectedIconPath":"static/tabbar/homeed.png",
+				"iconPath":"static/tabbar/home.png",
+				"navigationBarTitleText":"我的"
+				
+			}
+			
+		]
+	}
+}
