@@ -1,10 +1,36 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/demo/demo",
+			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "首页",
-				"enablePullDownRefresh": false
+				"navigationBarTitleText": "新闻",
+				"enablePullDownRefresh": false,
+				"app-plus":{
+								"titleNView":{
+									//搜索框配置
+								     "searchInput":{
+									"align":"center",
+									"backgroundColor":"#F5F4F2",
+									"borderRadius":"4px",
+									"disable":true,
+									"placeholder":"搜索帖子",
+									"placeholderColor":"#6D6C67"
+									},
+									 "buttons":[
+										 {
+											 "color":"#333333",
+											 "colorPressed":"#FD597C",
+											 "float":"right",
+											 "fontSize":"16px",
+											 "fontSrc":"/static/iconfont.ttf",
+											 "text":"\ue61f"
+										 }
+									 ]
+								}
+							
+								}
+				
+				
 			}
 		}
 	    ,{
@@ -35,7 +61,7 @@
             
         }
         ,{
-            "path" : "pages/index/index",
+            "path" : "pages/demo/demo",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "demo",
@@ -57,32 +83,28 @@
 		"borderStyle":"black",
 		"list":[
 			{
-				"pagePath":"pages/demo/demo",
+				"pagePath":"pages/index/index",
 				"text":"首页",
 				"selectedIconPath":"static/tabbar/homeed.png",
-				"iconPath":"static/tabbar/home.png",
-				"navigationBarTitleText":"首页"
+				"iconPath":"static/tabbar/home.png"
 				
 			},{
 				"pagePath":"pages/news/news",
 				"text":"新闻",
 				"selectedIconPath":"static/tabbar/homeed.png",
-				"iconPath":"static/tabbar/home.png",
-				"navigationBarTitleText":"新闻"
+				"iconPath":"static/tabbar/home.png"
 				
 			},{
 				"pagePath":"pages/msg/msg",
 				"text":"消息",
 				"selectedIconPath":"static/tabbar/homeed.png",
-				"iconPath":"static/tabbar/home.png",
-				"navigationBarTitleText":"消息"
+				"iconPath":"static/tabbar/home.png"
 				
 			},{
 				"pagePath":"pages/my/my",
 				"text":"我的",
 				"selectedIconPath":"static/tabbar/homeed.png",
-				"iconPath":"static/tabbar/home.png",
-				"navigationBarTitleText":"我的"
+				"iconPath":"static/tabbar/home.png"
 				
 			}
 			

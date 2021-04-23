@@ -1,1 +1,1 @@
-<view><block wx:for="{{objlist}}" wx:for-item="val2" wx:for-index="index2" wx:key="index2"><block><view>{{index2+"-"+val2}}</view></block></block></view>
+<view><view class="font">{{Weight}}</view></view>

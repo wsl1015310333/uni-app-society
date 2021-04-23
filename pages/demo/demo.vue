@@ -23,10 +23,12 @@
 <!-- </view> -->
 <!-- <view v-for="(val2,index2) in objlist" :key="index2">{{index2}}-{{val2}}</view>
   </view> -->
-  <block v-for="(val2,index2) in objlist" :key="index2">
+  <!-- <block v-for="(val2,index2) in objlist" :key="index2">
 	  <view >{{index2}}-{{val2}}</view>
 	  
-  </block>
+  </block> -->
+  <view class="font">{{Weight}}</view>
+ 
   </view>
 </template>
 
@@ -34,31 +36,9 @@
 	export default {
 		data() { 
 			return {
-				list1:["篮球","足球","排球"],
-					list2:[{name:"篮球",id:"laqiu"},
-					{name:"足球",id:"zhuqiu"},
-					{name:"paiqiu",id:"paiqiu"},
-					],
-					list3:[
-						{
-							name:"广东",
-					list:["广州","深圳"]
-						},
-					{
-						name:"四川",
-						list:["四川1","四川2"]
-						
-						}
-					
-					],
-					objlist:{
-						name1:"篮球",
-						name2:"足球",
-						name4:"羽毛球"
-						
-					}
-			}
-		
+				weight:100
+			}	
+		 
 		},
 		methods: {
 			
@@ -68,6 +48,11 @@
 		changeAge:function(){
 			this.age+=11
 		}
+		},
+		computed:{
+			Weight:function(){
+				return this.weight>100?(this.weight/100)+'kg':this.weight+'g';
+			}
 		}
 	}
 </script>
