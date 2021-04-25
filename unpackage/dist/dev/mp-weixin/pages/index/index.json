@@ -1,5 +1,7 @@
 {
   "navigationBarTitleText": "新闻",
   "enablePullDownRefresh": false,
-  "usingComponents": {}
+  "usingComponents": {
+    "common-list": "/components/common/common-list"
+  }
 }

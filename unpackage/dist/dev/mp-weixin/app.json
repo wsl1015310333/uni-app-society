@@ -4,8 +4,7 @@
     "pages/news/news",
     "pages/msg/msg",
     "pages/my/my",
-    "pages/demo/demo",
-    "components/common/common-list"
+    "pages/demo/demo"
   ],
   "subPackages": [],
   "window": {
