@@ -57,7 +57,7 @@
 	}
 </script>
 
-<style>
+<style lang="scss">
 .box{
 	background: #09BB07;
 	color: #FFFFFF;

@@ -4,7 +4,8 @@
     "pages/news/news",
     "pages/msg/msg",
     "pages/my/my",
-    "pages/demo/demo"
+    "pages/demo/demo",
+    "components/common/common-list"
   ],
   "subPackages": [],
   "window": {
@@ -45,6 +46,5 @@
       }
     ]
   },
-  "usingComponents": {},
-  "sitemapLocation": "sitemap.json"
+  "usingComponents": {}
 }

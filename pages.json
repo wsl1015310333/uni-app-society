@@ -69,6 +69,15 @@
             }
             
         }
+        ,{
+            "path" : "components/common/common-list",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
