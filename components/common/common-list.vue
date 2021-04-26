@@ -48,7 +48,7 @@
 			<view @click="openDetail" class="flex align-center justify-center flex-1 animated faster"
 				hover-class="jello text-main">
 				<text class=" iconfont icon-pinglun mr-2"></text>
-				<text>{{item.comment_count}}</text> 
+				<text>{{item. comment_count}}</text> 
 			</view>
 			<view @click="openDetail" class="flex align-center justify-center flex-1 mr-2 animated faster"
 				hover-class="jello text-main" >
@@ -81,7 +81,7 @@
 			},
 
 			doSupport(type) { 
-				console.log("so")
+				
 				
 				this.$emit('doSupport',{
 					type:type,

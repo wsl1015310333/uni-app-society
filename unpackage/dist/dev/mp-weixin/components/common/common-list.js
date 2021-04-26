@@ -197,7 +197,7 @@ var _default =
     },
 
     doSupport: function doSupport(type) {
-      console.log("so");
+
 
       this.$emit('doSupport', {
         type: type,

@@ -133,7 +133,12 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var commonList = function commonList() {__webpack_require__.e(/*! require.ensure | components/common/common-list */ "components/common/common-list").then((function () {return resolve(__webpack_require__(/*! ../../components/common/common-list.vue */ 48));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var _default =
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;function _toConsumableArray(arr) {return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();}function _nonIterableSpread() {throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");}function _unsupportedIterableToArray(o, minLen) {if (!o) return;if (typeof o === "string") return _arrayLikeToArray(o, minLen);var n = Object.prototype.toString.call(o).slice(8, -1);if (n === "Object" && o.constructor) n = o.constructor.name;if (n === "Map" || n === "Set") return Array.from(o);if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);}function _iterableToArray(iter) {if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);}function _arrayWithoutHoles(arr) {if (Array.isArray(arr)) return _arrayLikeToArray(arr);}function _arrayLikeToArray(arr, len) {if (len == null || len > arr.length) len = arr.length;for (var i = 0, arr2 = new Array(len); i < len; i++) {arr2[i] = arr[i];}return arr2;}var commonList = function commonList() {__webpack_require__.e(/*! require.ensure | components/common/common-list */ "components/common/common-list").then((function () {return resolve(__webpack_require__(/*! ../../components/common/common-list.vue */ 48));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var loadMore = function loadMore() {__webpack_require__.e(/*! require.ensure | components/common/load-more */ "components/common/load-more").then((function () {return resolve(__webpack_require__(/*! ../../components/common/load-more.vue */ 58));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var _default =
+
+
+
+
+
 
 
 
@@ -170,10 +175,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 {
-  components: { commonList: commonList }, //很重要
+  components: {
+    commonList: commonList, loadMore: loadMore },
+  //很重要
   data: function data() {
 
     return {
+      scrollH: 600,
       scrollInto: "",
       tabIndex: 0,
       tabBars: [{
@@ -192,65 +200,25 @@ __webpack_require__.r(__webpack_exports__);
         name: "财经" }],
 
 
-      list: [
-      {
-        username: "昵称",
-        userpic: "../../static/demo10.jpg",
-        newstime: "2019-10-20 下午04:30",
-        ifFollow: false,
-        title: "我是标题",
-        titlepic: "../../static/demo/datapic/43.jpg",
-
-        support: {
-          type: "support",
-          support_count: 1,
-          unsupport_count: 2 },
-
-        comment_count: 2,
-        share_num: 2 },
-
-
-      {
-        username: "昵称2",
-        userpic: "../../static/demo10.jpg",
-        newstime: "2019-10-20 下午04:30",
-        isFollow: false,
-        title: "我是标题",
-        titlepic: "",
-
-        support: {
-          type: "unsupport",
-          support_count: 1,
-          unsupport_count: 2 },
-
-        comment_count: 2,
-        share_num: 2 },
-
-
-      {
-        username: "昵称2",
-        userpic: "../../static/demo10.jpg",
-        newstime: "2019-10-20 下午04:30",
-        isFollow: false,
-        title: "我是标题",
-        titlepic: "",
-
-        support: {
-          type: "", //未操作 
-          support_count: 1,
-          unsupport_count: 2 },
-
-        comment_count: 2,
-        share_num: 2 }] };
-
-
-
+      newsList: [] };
 
   },
-  onLoad: function onLoad() {
+  onLoad: function onLoad() {var _this = this;
 
+    var res = uni.getSystemInfo({
+      success: function success(res) {
+        console.log(res.windowHeight);
+        _this.scrollH = res.windowHeight - uni.upx2px(100);
+      } });
+
+    this.getData();
+
+    //根据选项获取数据
   },
   methods: {
+    onChangeTab: function onChangeTab(e) {
+      console.log(e);
+    },
     changeTab: function changeTab(index) {
       if (this.tabIndex === index) {
         return;
@@ -267,10 +235,77 @@ __webpack_require__.r(__webpack_exports__);
 
       console.log(e);
     },
+    getData: function getData() {
+      var arr = [];
+      for (var i = 0; i < this.tabBars.length; i++) {
+        //生成列表模版
+        var obj = {
+          loadmore: "上拉加载更多",
+          list: [{
+            username: "昵称",
+            userpic: "../../static/demo10.jpg",
+            newstime: "2019-10-20 下午04:30",
+            ifFollow: false,
+            title: "我是标题",
+            titlepic: "../../static/demo/datapic/43.jpg",
+
+            support: {
+              type: "support",
+              support_count: 1,
+              unsupport_count: 2 },
+
+            comment_count: 2,
+            share_num: 2 },
+
+
+          {
+            username: "昵称2",
+            userpic: "../../static/demo10.jpg",
+            newstime: "2019-10-20 下午04:30",
+            isFollow: false,
+            title: "我是标题",
+            titlepic: "",
+
+            support: {
+              type: "unsupport",
+              support_count: 1,
+              unsupport_count: 2 },
+
+            comment_count: 2,
+            share_num: 2 },
+
+
+          {
+            username: "昵称2",
+            userpic: "../../static/demo10.jpg",
+            newstime: "2019-10-20 下午04:30",
+            isFollow: false,
+            title: "我是标题",
+            titlepic: "",
+
+            support: {
+              type: "", //未操作 
+              support_count: 1,
+              unsupport_count: 2 },
+
+            comment_count: 2,
+            share_num: 2 }] };
+
+
+
+
+        arr.push(obj);
+      }
+      console.log(arr);
+      this.newsList = arr;
+    },
+
     doSupport: function doSupport(e) {
+      console.log(e);
       //拿到当前对象
       //之前没有操作过
-      var item = this.list[e.index];
+
+      var item = this.newsList[this.tabIndex].list[e.index];
       var msg = e.type === 'support' ? '顶' : '踩';
 
       if (item.support.type === '') {
@@ -295,6 +330,20 @@ __webpack_require__.r(__webpack_exports__);
 
       console.log(e);
 
+    },
+    //上拉加载更多
+    loadmore: function loadmore(index) {
+
+      var item = this.newsList[index];
+      //判断是否处于可加载状态
+      if (item.loadmore !== '上拉加载更多') return;
+
+      this.newsList[this.tabIndex].loadmore = '加载中...';
+      console.log("上拉加载更多 ");
+      setTimeout(function () {
+        item.list = [].concat(_toConsumableArray(item.list), _toConsumableArray(item.list));
+        item.loadmore = '上拉加载更多';
+      }, 2000);
     } } };exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
