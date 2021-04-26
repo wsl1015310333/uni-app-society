@@ -133,7 +133,26 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var commonList = function commonList() {__webpack_require__.e(/*! require.ensure | components/common/common-list */ "components/common/common-list").then((function () {return resolve(__webpack_require__(/*! ../../components/common/common-list.vue */ 17));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var _default =
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var commonList = function commonList() {__webpack_require__.e(/*! require.ensure | components/common/common-list */ "components/common/common-list").then((function () {return resolve(__webpack_require__(/*! ../../components/common/common-list.vue */ 48));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var _default =
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -151,10 +170,27 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 
 
 {
-  components: { commonList: commonList },
+  components: { commonList: commonList }, //很重要
   data: function data() {
 
     return {
+      scrollInto: "",
+      tabIndex: 0,
+      tabBars: [{
+        name: "关注" },
+
+      {
+        name: "推荐" },
+
+      {
+        name: "体育" },
+
+      {
+        name: "热点" },
+
+      {
+        name: "财经" }],
+
 
       list: [
       {
@@ -178,12 +214,29 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
         username: "昵称2",
         userpic: "../../static/demo10.jpg",
         newstime: "2019-10-20 下午04:30",
-        ifFollow: false,
+        isFollow: false,
         title: "我是标题",
-        titlepic: "../../static/demo/datapic/42.jpg",
+        titlepic: "",
 
         support: {
-          type: "support",
+          type: "unsupport",
+          support_count: 1,
+          unsupport_count: 2 },
+
+        comment_count: 2,
+        share_num: 2 },
+
+
+      {
+        username: "昵称2",
+        userpic: "../../static/demo10.jpg",
+        newstime: "2019-10-20 下午04:30",
+        isFollow: false,
+        title: "我是标题",
+        titlepic: "",
+
+        support: {
+          type: "", //未操作 
           support_count: 1,
           unsupport_count: 2 },
 
@@ -197,7 +250,53 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
   onLoad: function onLoad() {
 
   },
-  methods: {} };exports.default = _default;
+  methods: {
+    changeTab: function changeTab(index) {
+      if (this.tabIndex === index) {
+        return;
+      }
+      this.tabIndex = index;
+      this.scrollInto = 'tab' + index;
+
+
+    },
+    follow: function follow(e) {
+      this.list[e].isFollow = true;
+      uni.showToast({
+        title: '关注成功' });
+
+      console.log(e);
+    },
+    doSupport: function doSupport(e) {
+      //拿到当前对象
+      //之前没有操作过
+      var item = this.list[e.index];
+      var msg = e.type === 'support' ? '顶' : '踩';
+
+      if (item.support.type === '') {
+        item.support.type = e.type;
+        item.support[e.type + '_count']++;
+
+      } else if (item.support.type === 'support' && e.type === 'unsupport') {
+        //顶01
+        item.support.support_count--;
+        item.support.unsupport_count++;
+
+      } else if (item.support.type === 'unsupport' && e.type === 'support') {
+        item.support.support_count++;
+        item.support.unsupport_count--;
+      }
+      item.support.type = e.type;
+      //之前顶
+
+      uni.showToast({
+        title: msg + '成功' });
+
+
+      console.log(e);
+
+    } } };exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
 /***/ })
 ],[[11,"common/runtime","common/vendor"]]]);
