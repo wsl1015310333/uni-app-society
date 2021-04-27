@@ -12,7 +12,7 @@
 									"align":"center",
 									"backgroundColor":"#F5F4F2",
 									"borderRadius":"4px",
-									"disable":true,
+									"disabled":true,
 									"placeholder":"搜索帖子",
 									"placeholderColor":"#6D6C67"
 									},
@@ -37,8 +37,11 @@
             "path" : "pages/news/news",
             "style" :                                                                                    
             {
-                "navigationBarTitleText": "新闻",
-                "enablePullDownRefresh": false
+				"app-plus":{
+					"titleNView":false
+					
+				}
+               
             }
             
         }
@@ -69,7 +72,60 @@
             }
             
         }
-        
+      ,
+	  {
+	        "path" : "pages/add-input/add-input",//取消原生导航栏
+	        "style" :                                                                                    
+	        {
+	            "app-plus":{
+			"titleNView":false
+			
+				}
+	        }
+	        
+	    }
+	  ,
+	  {
+          "path" : "components/common/common-list",
+          "style" :                                                                                    
+          {
+              "navigationBarTitleText": "",
+              "enablePullDownRefresh": false
+          }
+          
+		  
+      },{
+		  "path":"pages/search/search",
+		  "style":{
+				"navigationBarTitleText": "搜索",
+				"enablePullDownRefresh": false,
+				"app-plus":{
+								"titleNView":{
+									//搜索框配置
+								     "searchInput":{
+									"align":"center",
+									"backgroundColor":"#F5F4F2",
+									"borderRadius":"4px",
+									
+									"placeholder":"搜索帖子",
+									"placeholderColor":"#6D6C67"
+									},
+									 "buttons":[
+										 {
+											 "color":"#333333",
+											 "colorPressed":"#FD597C",
+											 "float":"right",
+											 "fontSize":"14px",
+											 "text":"搜索"
+										 }
+									 ]
+								}
+							
+								}
+				
+				
+			}
+	  }  
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

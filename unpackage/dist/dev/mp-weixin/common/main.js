@@ -12,9 +12,11 @@ var _App = _interopRequireDefault(__webpack_require__(/*! ./App */ 5));function 
 
 _vue.default.config.productionTip = false;
 
-_App.default.mpType = 'app';var divider = function divider() {__webpack_require__.e(/*! require.ensure | components/common/divider */ "components/common/divider").then((function () {return resolve(__webpack_require__(/*! ./components/common/divider.vue */ 43));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};
+_App.default.mpType = 'app';var divider = function divider() {__webpack_require__.e(/*! require.ensure | components/common/divider */ "components/common/divider").then((function () {return resolve(__webpack_require__(/*! ./components/common/divider.vue */ 72));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};
 
-_vue.default.component('divider', divider);
+_vue.default.component('divider', divider);var noThing = function noThing() {__webpack_require__.e(/*! require.ensure | components/common/no-thing */ "components/common/no-thing").then((function () {return resolve(__webpack_require__(/*! ./components/common/no-thing.vue */ 77));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};
+
+_vue.default.component('no-thing', noThing);
 var app = new _vue.default(_objectSpread({},
 _App.default));
 

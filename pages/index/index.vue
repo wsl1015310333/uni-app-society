@@ -18,12 +18,24 @@
 		<swiper :duration="150" :current="tabIndex" @change="onChangeTab" :style="'height:'+scrollH+'px'">
 			<swiper-item v-for="(item,index) in newsList" :key="index">
 				<scroll-view scroll-y="true" :style="'height:'+scrollH+'px'" @scrolltolower="loadmore(index)">
+				<template v-if="item.list.length>0">
+				
 					<block v-for="(item2,index2) in item.list" :key="index2">
+						<!-- <text>{{item2.username}}</text> -->
 						<common-list :item="item2" :index="index2" @follow="follow" @doSupport="doSupport">
 						</common-list>
 						<divider></divider>
 					</block>
 					<load-more :loadmore="item.loadmore"></load-more>
+					</template>
+					<!-- 无数据 -->
+					<template v-else>
+						<no-thing ></no-thing>
+						<!-- <view class="flex-column align-center justify-center">
+							<image src="../../static/demo/banner1.jpg" style="width:  300rpx;height: 300rpx;"></image>
+						<text class="font-md">什么也没有</text>
+						</view> -->
+					</template>
 				</scroll-view>
 
 			</swiper-item>
@@ -35,78 +47,10 @@
 </template>
 
 <script>
-	import {
-		commonList
-	} from "../../components/common/common-list.vue";
+	
+import commonList from "@/components/common/common-list.vue";
 import loadMore from '../../components/common/load-more.vue'
-	export default {
-		components: {
-			commonList,loadMore
-		}, //很重要
-		data() {
-
-			return {
-				scrollH: 600,
-				scrollInto: "",
-				tabIndex: 0,
-				tabBars: [{
-						name: "关注"
-					},
-					{
-						name: "推荐"
-					},
-					{
-						name: "体育"
-					},
-					{
-						name: "热点"
-					},
-					{
-						name: "财经"
-					}
-				],
-				newsList: []
-			}
-		},
-		onLoad() {
-
-			let res = uni.getSystemInfo({
-				success: res => {
-					console.log(res.windowHeight)
-					this.scrollH = res.windowHeight - uni.upx2px(100)
-				}
-			})
-			this.getData()
-
-			//根据选项获取数据
-		},
-		methods: {
-			onChangeTab(e) {
-				console.log(e)
-			},
-			changeTab(index) {
-				if (this.tabIndex === index) {
-					return
-				}
-				this.tabIndex = index
-				this.scrollInto = 'tab' + index
-
-
-			},
-			follow(e) {
-				this.list[e].isFollow = true
-				uni.showToast({
-					title: '关注成功'
-				})
-				console.log(e)
-			},
-			getData() {
-				var arr = []
-				for (let i = 0; i < this.tabBars.length; i++) {
-					//生成列表模版
-					let obj = {
-						loadmore: "上拉加载更多",
-						list: [{
+const demo=[{
 								username: "昵称",
 								userpic: "../../static/demo10.jpg",
 								newstime: "2019-10-20 下午04:30",
@@ -156,8 +100,92 @@ import loadMore from '../../components/common/load-more.vue'
 								comment_count: 2,
 								share_num: 2
 
-							}
+							}];
+	export default {
+		components: {
+			commonList,loadMore
+		}, //很重要
+		data() {
+
+			return {
+				scrollH: 600,
+				scrollInto: "",
+				tabIndex: 0,
+				tabBars: [{
+						name: "关注"
+					},
+					{
+						name: "推荐"
+					},
+					{
+						name: "体育"
+					},
+					{
+						name: "热点"
+					},
+					{
+						name: "财经"
+					}
+				],
+				newsList: []
+			}
+		},
+		onNavigationBarSearchInputClicked(){
+			console.log("编辑跳转")
+			uni.navigateTo({
+				url:'../search/search',
+				
+			})
+		},
+		onLoad() {
+
+			let res = uni.getSystemInfo({
+				success: res => {
+					console.log(res.windowHeight)
+					this.scrollH = res.windowHeight - uni.upx2px(100)
+				}
+			})
+			this.getData()
+
+			//根据选项获取数据statusBar
+		},
+		onNavigationBarButtonTap(){
+			console.log("跳转")
+			uni.navigateTo({
+				url:'../add-input/add-input'
+			})
+		},
+		methods: {
+			onChangeTab(e) {
+				console.log(e)
+			},
+			changeTab(index) {
+				if (this.tabIndex === index) {
+					return
+				}
+				this.tabIndex = index
+				this.scrollInto = 'tab' + index
+
+
+			},
+			follow(e) {
+				this.list[e].isFollow = true
+				uni.showToast({
+					title: '关注成功'
+				})
+				console.log(e)
+			},
+			getData() {
+				var arr = []
+				for (let i = 0; i < this.tabBars.length; i++) {
+					//生成列表模版
+					let obj = {
+						loadmore: "上拉加载更多",
+						list: [
 						]
+					}
+					if(i<2){
+						obj.list=demo
 					}
 					arr.push(obj)
 				}

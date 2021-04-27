@@ -1,1 +1,1 @@
-<view>界面.......</view>
+<view><uni-nav-bar vue-id="1cdd0ce0-1" bind:__l="__l" vue-slots="{{['default','left','right']}}"><view>标题栏</view><view slot="left">left</view><view slot="right">right</view></uni-nav-bar></view>
