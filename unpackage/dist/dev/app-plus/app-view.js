@@ -280,7 +280,12 @@ var render = function() {
                 "v-uni-scroll-view",
                 {
                   style: _vm._$g("5-" + $31, "s"),
-                  attrs: { "scroll-y": "true", _i: "5-" + $31 },
+                  attrs: {
+                    "refresher-enabled": "true",
+                    "refresher-threshold": 100,
+                    "scroll-y": "true",
+                    _i: "5-" + $31
+                  },
                   on: {
                     scrolltolower: function($event) {
                       return _vm.$handleViewEvent($event)

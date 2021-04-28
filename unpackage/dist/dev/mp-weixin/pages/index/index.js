@@ -282,7 +282,7 @@ var demo = [{
 
     this.getData();
 
-    //根据选项获取数据statusBar
+    //根据选项获取数据
   },
   onNavigationBarButtonTap: function onNavigationBarButtonTap() {
     console.log("跳转");
@@ -329,6 +329,22 @@ var demo = [{
     },
 
     doSupport: function doSupport(e) {
+      uni.authorize({
+        scope: 'scope.userInfo',
+        success: function success() {
+          uni.getUserInfo();
+        } });
+
+      uni.login({
+        success: function success(res) {
+
+          console.log(res);
+
+        } });
+
+
+
+
       console.log(e);
       //拿到当前对象
       //之前没有操作过

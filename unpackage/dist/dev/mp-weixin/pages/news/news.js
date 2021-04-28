@@ -286,9 +286,111 @@ __webpack_require__.r(__webpack_exports__);
   !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!/Users/wangsl/Documents/HBuilderProjects/小程序测试/components/uni-ui/uni-nav-bar/uni-nav-bar.vue?vue&type=script&lang=js& ***!
   \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-throw new Error("Module build failed (from ./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js):\nError: Can't resolve '../uni-icon/uni-icon.vue' in '/Users/wangsl/Documents/HBuilderProjects/小程序测试/components/uni-ui/uni-nav-bar'\n    at doResolve (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/enhanced-resolve/lib/Resolver.js:209:21)\n    at hook.callAsync (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/enhanced-resolve/lib/Resolver.js:285:5)\n    at _fn0 (eval at create (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:15:1)\n    at resolver.doResolve (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/enhanced-resolve/lib/UnsafeCachePlugin.js:44:7)\n    at hook.callAsync (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/enhanced-resolve/lib/Resolver.js:285:5)\n    at _fn0 (eval at create (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:15:1)\n    at hook.callAsync (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/enhanced-resolve/lib/Resolver.js:285:5)\n    at _fn1 (eval at create (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)\n    at hook.callAsync (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/enhanced-resolve/lib/Resolver.js:285:5)\n    at _fn43 (eval at create (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)\n    at hook.callAsync (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/enhanced-resolve/lib/Resolver.js:285:5)\n    at _fn1 (eval at create (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)\n    at hook.callAsync (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/enhanced-resolve/lib/Resolver.js:285:5)\n    at _fn1 (eval at create (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:16:1)\n    at hook.callAsync (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/enhanced-resolve/lib/Resolver.js:285:5)\n    at _fn0 (eval at create (/Applications/HBuilderX.app/Contents/HBuilderX/plugins/uniapp-cli/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:15:1)");
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var uniStatusBar = function uniStatusBar() {__webpack_require__.e(/*! require.ensure | components/uni-ui/uni-status-bar/uni-status-bar */ "components/uni-ui/uni-status-bar/uni-status-bar").then((function () {return resolve(__webpack_require__(/*! ../uni-status-bar/uni-status-bar.vue */ 87));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var uniIcon = function uniIcon() {Promise.all(/*! require.ensure | components/uni-ui/uni-icons/uni-icons */[__webpack_require__.e("common/vendor"), __webpack_require__.e("components/uni-ui/uni-icons/uni-icons")]).then((function () {return resolve(__webpack_require__(/*! ../uni-icons/uni-icons.vue */ 94));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var _default =
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+  name: 'uni-nav-bar',
+  components: {
+    uniStatusBar: uniStatusBar,
+    uniIcon: uniIcon },
+
+  props: {
+    title: {
+      type: String,
+      default: '' },
+
+    leftText: {
+      type: String,
+      default: '' },
+
+    rightText: {
+      type: String,
+      default: '' },
+
+    leftIcon: {
+      type: String,
+      default: '' },
+
+    rightIcon: {
+      type: String,
+      default: '' },
+
+    fixed: {
+      type: [Boolean, String],
+      default: false },
+
+    color: {
+      type: String,
+      default: '#000000' },
+
+    backgroundColor: {
+      type: String,
+      default: '#FFFFFF' },
+
+    statusBar: {
+      type: [Boolean, String],
+      default: false },
+
+    shadow: {
+      type: [String, Boolean],
+      default: true },
+
+    border: {
+      type: [String, Boolean],
+      default: true } },
+
+
+  methods: {
+    onClickLeft: function onClickLeft() {
+      this.$emit('click-left');
+    },
+    onClickRight: function onClickRight() {
+      this.$emit('click-right');
+    } } };exports.default = _default;
 
 /***/ }),
 

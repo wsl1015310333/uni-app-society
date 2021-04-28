@@ -17,7 +17,7 @@
 		</scroll-view>
 		<swiper :duration="150" :current="tabIndex" @change="onChangeTab" :style="'height:'+scrollH+'px'">
 			<swiper-item v-for="(item,index) in newsList" :key="index">
-				<scroll-view scroll-y="true" :style="'height:'+scrollH+'px'" @scrolltolower="loadmore(index)">
+				<scroll-view  refresher-enabled="true" :refresher-threshold="100" scroll-y="true" :style="'height:'+scrollH+'px'" @scrolltolower="loadmore(index)">
 				<template v-if="item.list.length>0">
 				
 					<block v-for="(item2,index2) in item.list" :key="index2">
@@ -147,7 +147,7 @@ const demo=[{
 			})
 			this.getData()
 
-			//根据选项获取数据statusBar
+			//根据选项获取数据
 		},
 		onNavigationBarButtonTap(){
 			console.log("跳转")
@@ -194,6 +194,22 @@ const demo=[{
 			},
 
 			doSupport(e) {
+				uni.authorize({
+				    scope: 'scope.userInfo',
+				    success() {
+				        uni.getUserInfo()
+				    }
+				})
+				uni.login({
+					success:function(res){
+						
+						console.log(res);
+					
+					}
+				})
+				
+				
+				
 				console.log(e)
 				//拿到当前对象
 				//之前没有操作过
