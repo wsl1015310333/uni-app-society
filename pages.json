@@ -126,6 +126,15 @@
 				
 			}
 	  }  
+        ,{
+            "path" : "pages/new-details/new-details",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
