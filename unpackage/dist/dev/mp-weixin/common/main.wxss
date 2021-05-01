@@ -4945,6 +4945,9 @@ border-bottom-left-radius: 8rpx;
 	border-top-left-radius: 8rpx;
 	border-bottom-left-radius: 8rpx;
 }
+.rounded-left_cirle{
+	border-radius:50rpx
+}
 .rounded-circle{
 	border-radius:100rpx
 }
@@ -5023,6 +5026,9 @@ display:flex;
 }
 .bg_white{
 	background-color: #FFFFFF;
+}
+.bg_hint{
+	background-color: #CCCCCC;
 }
 .bg_dark{
 	background-color: #000000;

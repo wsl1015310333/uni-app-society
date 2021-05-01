@@ -7,7 +7,8 @@
     "pages/demo/demo",
     "pages/add-input/add-input",
     "components/common/common-list",
-    "pages/search/search"
+    "pages/search/search",
+    "pages/new-details/new-details"
   ],
   "subPackages": [],
   "window": {
