@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "搜索",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "common-list": "/components/common/common-list"
+  }
+}
