@@ -1,4 +1,6 @@
 <script>
+	
+	import store from '@/common/store';
 	export default {
 		onLaunch: function() {
 			console.log('App Launch')
@@ -7,7 +9,7 @@
 			console.log('App Show')
 		},
 		onHide: function() {
-			console.log('App Hide')
+			console.log('App Hide111')
 		}
 	}
 </script>

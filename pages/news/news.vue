@@ -6,8 +6,6 @@
 				<view class="font-lg text-main mx-1">关注</view>
 				<view class="font-md text-light-muted mx-1">话题 </view>
 			</view>
-			
-		
 		</uni-nav-bar> -->
 		
 		<uni-nav-bar>
@@ -34,7 +32,7 @@
 			
 		}
 	}
-</script>
+</script 
 
 <style>
 
