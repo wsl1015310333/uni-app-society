@@ -194,6 +194,13 @@ const demo=[{
 			},
 
 			doSupport(e) {
+				// uni.navigateTo({
+				// 	url:'../new-details/new-details'
+				// })
+				this.$Router.push({
+					path: '../new-details/new-details'
+				});
+				
 				uni.authorize({
 				    scope: 'scope.userInfo',
 				    success() {

@@ -1,6 +1,8 @@
 <script>
+	import Vue from 'vue';
+	import { mapMutations, mapActions, mapState } from 'vuex';
+	//import store from '@/common/store';
 	
-	import store from '@/common/store';
 	export default {
 		onLaunch: function() {
 			console.log('App Launch')
