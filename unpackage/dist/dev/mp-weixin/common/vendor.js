@@ -3217,6 +3217,402 @@ module.exports = permission;
 
 /***/ }),
 
+/***/ 126:
+/*!******************************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/request/index.js ***!
+  \******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = api;var _request = _interopRequireDefault(__webpack_require__(/*! ./request */ 127));
+var _JD = _interopRequireDefault(__webpack_require__(/*! ./JD.js */ 136));
+var _index = _interopRequireDefault(__webpack_require__(/*! @/common/store/index.js */ 12));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+
+function api(url) {var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};var showToast = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+  var request = new _request.default();
+  var api = getApiObj(url);
+  request.interceptor.request(function (config, cancel) {/* 请求之前拦截器 */
+    // if (api.auth) {
+    // 	let token = uni.getStorageSync('token');
+    // 	if (!token) {
+    // 		store.commit('LOGIN_TIP', true)
+    // 		store.commit('OUT_LOGIN');
+    // 		throw ('暂未登录,已阻止此次API请求~');
+    // 	}
+    // }
+    // if (uni.getStorageSync('token')) {
+    // 	config.header.token = uni.getStorageSync('token');
+    // }
+    return config;
+  });
+
+  request.interceptor.response(function (response) {/* 请求之后拦截器 */
+    if (response.data.code === 0) {// 服务端返回的状态码不等于200，则reject()
+      if (showToast) {
+        uni.showToast({
+          title: response.data.msg || '请求出错,稍后重试',
+          icon: 'none',
+          duration: 1000,
+          mask: true });
+
+      }
+
+    }
+
+    if (response.data.code === 401) {// 服务端返回的状态码不等于200，则reject()
+      uni.removeStorageSync('token');
+      _index.default.commit('LOGIN_TIP', true);
+    }
+    // if (response.config.custom.verification) { // 演示自定义参数的作用
+    //   return response.data
+    // }
+    return response;
+  }, function (response) {// 预留可以日志上报
+    return response;
+  });
+
+  return request.request({
+    url: api.url,
+    data: data,
+    method: api.method });
+
+
+}
+
+function getApiObj(url) {
+  var apiArray = url.split(".");
+  var api = _JD.default;
+  apiArray.forEach(function (v) {
+    api = api[v];
+  });
+  return api;
+}
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
+
+/***/ 127:
+/*!********************************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/request/request.js ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _regenerator = _interopRequireDefault(__webpack_require__(/*! ./node_modules/@babel/runtime/regenerator */ 119));var _env = __webpack_require__(/*! @/env */ 128);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function ownKeys(object, enumerableOnly) {var keys = Object.keys(object);if (Object.getOwnPropertySymbols) {var symbols = Object.getOwnPropertySymbols(object);if (enumerableOnly) symbols = symbols.filter(function (sym) {return Object.getOwnPropertyDescriptor(object, sym).enumerable;});keys.push.apply(keys, symbols);}return keys;}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};if (i % 2) {ownKeys(Object(source), true).forEach(function (key) {_defineProperty(target, key, source[key]);});} else if (Object.getOwnPropertyDescriptors) {Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));} else {ownKeys(Object(source)).forEach(function (key) {Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));});}}return target;}function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {try {var info = gen[key](arg);var value = info.value;} catch (error) {reject(error);return;}if (info.done) {resolve(value);} else {Promise.resolve(value).then(_next, _throw);}}function _asyncToGenerator(fn) {return function () {var self = this,args = arguments;return new Promise(function (resolve, reject) {var gen = fn.apply(self, args);function _next(value) {asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);}function _throw(err) {asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);}_next(undefined);});};}function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}function _defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}function _createClass(Constructor, protoProps, staticProps) {if (protoProps) _defineProperties(Constructor.prototype, protoProps);if (staticProps) _defineProperties(Constructor, staticProps);return Constructor;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}var
+
+
+
+Request = /*#__PURE__*/function () {function Request() {var _this = this;_classCallCheck(this, Request);_defineProperty(this, "config",
+    {
+      baseUrl: _env.API_URL,
+      header: {
+        'content-type': 'application/json',
+        'platform': uni.getStorageSync('platform') },
+
+      method: 'GET',
+      dataType: 'json',
+
+      responseType: 'text',
+
+      custom: {} });_defineProperty(this, "interceptor",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    {
+      /**
+       * @param {Request~requestCallback} cb - 请求之前拦截,接收一个函数（config, cancel）=> {return config}。第一个参数为全局config,第二个参数为函数，调用则取消本次请求。
+       */
+      request: function request(cb) {
+        if (cb) {
+          _this.requestBeforeFun = cb;
+        }
+      },
+      /**
+          * @param {Request~responseCallback} cb 响应拦截器，对响应数据做点什么
+          * @param {Request~responseErrCallback} ecb 响应拦截器，对响应错误做点什么
+          */
+      response: function response(cb, ecb) {
+        if (cb && ecb) {
+          _this.requestComFun = cb;
+          _this.requestComFail = ecb;
+        }
+      } });}_createClass(Request, [{ key: "requestBeforeFun", value: function requestBeforeFun(
+
+
+    config) {
+      return config;
+    } }, { key: "requestComFun", value: function requestComFun(
+
+    response) {
+      return response;
+    } }, { key: "requestComFail", value: function requestComFail(
+
+    response) {
+      return response;
+    }
+
+    /**
+       * 自定义验证器，如果返回true 则进入响应拦截器的响应成功函数(resolve)，否则进入响应拦截器的响应错误函数(reject)
+       * @param { Number } statusCode - 请求响应体statusCode（只读）
+       * @return { Boolean } 如果为true,则 resolve, 否则 reject
+       */ }, { key: "validateStatus", value: function validateStatus(
+    statusCode) {
+      return statusCode === 200;
+    }
+
+    /**
+       * @Function
+       * @param {Request~setConfigCallback} f - 设置全局默认配置
+       */ }, { key: "setConfig", value: function setConfig(
+    f) {
+      this.config = f(this.config);
+    }
+
+    /**
+       * @Function
+       * @param {Object} options - 请求配置项
+       * @prop {String} options.url - 请求路径
+       * @prop {Object} options.data - 请求参数
+       * @prop {Object} [options.responseType = config.responseType] [text|arraybuffer] - 响应的数据类型
+       * @prop {Object} [options.dataType = config.dataType] - 如果设为 json，会尝试对返回的数据做一次 JSON.parse
+       * @prop {Object} [options.header = config.header] - 请求header
+       * @prop {Object} [options.method = config.method] - 请求方法
+       * @returns {Promise<unknown>}
+       */ }, { key: "request", value: function () {var _request = _asyncToGenerator( /*#__PURE__*/_regenerator.default.mark(function _callee() {var _this2 = this;var options,_args = arguments;return _regenerator.default.wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:
+                options = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
+                options.baseUrl = this.config.baseUrl;
+                options.dataType = options.dataType || this.config.dataType;
+
+                options.responseType = options.responseType || this.config.responseType;
+
+
+
+
+                options.url = options.url || '';
+                options.data = options.data || {};
+                options.params = options.params || {};
+                options.header = options.header || this.config.header;
+                options.method = options.method || this.config.method;
+                options.custom = _objectSpread(_objectSpread({}, this.config.custom),
+                options.custom || {});return _context.abrupt("return",
+
+
+
+
+                new Promise(function (resolve, reject) {
+                  var next = true;
+                  var handleRe = {};
+
+                  options.complete = function (response) {
+                    response.config = handleRe;
+                    if (_this2.validateStatus(response.statusCode)) {// 成功
+                      response = _this2.requestComFun(response);
+                      resolve(response.data);
+                    } else if (401 === response.statusCode) {
+                      response = _this2.requestComFun(response);
+                      resolve(response.data);
+                    } else if (500 === response.statusCode) {
+                      resolve(response.data);
+                    } else {
+                      response = _this2.requestComFail(response);
+                      reject(response);
+                    }
+                  };
+                  var cancel = function cancel() {var t = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'handle cancel';var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : options;
+                    var err = {
+                      errMsg: t,
+                      config: config };
+
+                    reject(err);
+                    next = false;
+                  };
+
+                  handleRe = _objectSpread({}, _this2.requestBeforeFun(options, cancel));
+
+                  var _config = _objectSpread({}, handleRe);
+
+                  if (!next) return;
+                  delete _config.custom;
+                  var mergeUrl = Request.posUrl(_config.url) ? _config.url : _config.baseUrl + _config.url;
+                  if (JSON.stringify(_config.params) !== '{}') {
+                    var paramsH = Request.addQueryString(_config.params);
+                    mergeUrl += mergeUrl.indexOf('?') === -1 ? "?".concat(paramsH) : "&".concat(paramsH);
+                  }
+                  _config.url = mergeUrl;
+                  uni.request(_config);
+                }));case 11:case "end":return _context.stop();}}}, _callee, this);}));function request() {return _request.apply(this, arguments);}return request;}() }, { key: "get", value: function get(
+
+
+    url) {var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return this.request(_objectSpread({
+        url: url,
+        method: 'GET' },
+      options));
+
+    } }, { key: "post", value: function post(
+
+    url, data) {var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      return this.request(_objectSpread({
+        url: url,
+        data: data,
+        method: 'POST' },
+      options));
+
+    } }, { key: "upload", value: function upload(
+
+    url, _ref)
+
+
+
+
+
+
+
+
+
+
+
+    {var _this3 = this;var filePath = _ref.filePath,name = _ref.name,header = _ref.header,formData = _ref.formData,custom = _ref.custom;
+      return new Promise(function (resolve, reject) {
+        var next = true;
+        var handleRe = {};
+        var globalHeader = _objectSpread({}, _this3.config.header);
+
+        delete globalHeader['content-type'];
+        var pubConfig = {
+          baseUrl: _this3.config.baseUrl,
+          url: url,
+
+
+
+
+
+
+          filePath: filePath,
+          method: 'UPLOAD',
+          name: name,
+          header: header || globalHeader,
+          formData: formData,
+          custom: _objectSpread(_objectSpread({}, _this3.config.custom),
+          custom || {}),
+
+          complete: function complete(response) {
+            response.config = handleRe;
+            if (response.statusCode === 200) {// 成功
+              response = _this3.requestComFun(response);
+              resolve(response);
+            } else {
+              response = _this3.requestComFail(response);
+              reject(response);
+            }
+          } };
+
+        var cancel = function cancel() {var t = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'handle cancel';var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : pubConfig;
+          var err = {
+            errMsg: t,
+            config: config };
+
+          reject(err);
+          next = false;
+        };
+
+        handleRe = _objectSpread({}, _this3.requestBeforeFun(pubConfig, cancel));
+
+        var _config = _objectSpread({}, handleRe);
+
+        if (!next) return;
+        delete _config.custom;
+        _config.url = Request.posUrl(_config.url) ? _config.url : _config.baseUrl + _config.url;
+        uni.uploadFile(_config);
+      });
+    } }], [{ key: "posUrl", value: function posUrl(url) {/* 判断url是否为绝对路径 */return /(http|https):\/\/([\w.]+\/?)\S*/.test(url);} }, { key: "addQueryString", value: function addQueryString(params) {var paramsData = '';Object.keys(params).forEach(function (key) {paramsData += key + '=' + encodeURIComponent(params[key]) + '&';});return paramsData.substring(0, paramsData.length - 1);} /**
+                                                                                                                                                                                                                                                                                                                                                                                                * @property {Function} request 请求拦截器
+                                                                                                                                                                                                                                                                                                                                                                                                * @property {Function} response 响应拦截器
+                                                                                                                                                                                                                                                                                                                                                                                                * @type {{request: Request.interceptor.request, response: Request.interceptor.response}}
+                                                                                                                                                                                                                                                                                                                                                                                                */ }]);return Request;}(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                            * setConfig回调
+                                                                                                                                                                                                                                                                                                                                                                                                                            * @return {Object} - 返回操作后的config
+                                                                                                                                                                                                                                                                                                                                                                                                                            * @callback Request~setConfigCallback
+                                                                                                                                                                                                                                                                                                                                                                                                                            * @param {Object} config - 全局默认config
+                                                                                                                                                                                                                                                                                                                                                                                                                            */ /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                * 请求拦截器回调
+                                                                                                                                                                                                                                                                                                                                                                                                                                * @return {Object} - 返回操作后的config
+                                                                                                                                                                                                                                                                                                                                                                                                                                * @callback Request~requestCallback
+                                                                                                                                                                                                                                                                                                                                                                                                                                * @param {Object} config - 全局config
+                                                                                                                                                                                                                                                                                                                                                                                                                                * @param {Function} [cancel] - 取消请求钩子，调用会取消本次请求
+                                                                                                                                                                                                                                                                                                                                                                                                                                */
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                    * 响应拦截器回调
+                                                                                                                                                                                                                                                                                                                                                                                                                                    * @return {Object} - 返回操作后的response
+                                                                                                                                                                                                                                                                                                                                                                                                                                    * @callback Request~responseCallback
+                                                                                                                                                                                                                                                                                                                                                                                                                                    * @param {Object} response - 请求结果 response
+                                                                                                                                                                                                                                                                                                                                                                                                                                    */
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                        * 响应错误拦截器回调
+                                                                                                                                                                                                                                                                                                                                                                                                                                        * @return {Object} - 返回操作后的response
+                                                                                                                                                                                                                                                                                                                                                                                                                                        * @callback Request~responseErrCallback
+                                                                                                                                                                                                                                                                                                                                                                                                                                        * @param {Object} response - 请求结果 response
+                                                                                                                                                                                                                                                                                                                                                                                                                                        */exports.default = Request;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
+
+/***/ 128:
+/*!*************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/env.js ***!
+  \*************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.IMG_URL = exports.HAS_LIVE = exports.API_URL = exports.BASE_URL = void 0; /**
+                                                                                                                                                              *  Shopro全局配置文件
+                                                                                                                                                              *  @version 1.2.0
+                                                                                                                                                              */
+
+
+var ENV_BASE_URL = {
+  development: 'https://api.7wpp.com', //开发环境
+  production: 'https://api.7wpp.com' //生产环境
+};
+var ENV_API_URL = {
+  development: "".concat(ENV_BASE_URL.development, "/addons/shopro/"), //开发环境
+  production: "".concat(ENV_BASE_URL.production, "/addons/shopro/") //生产环境
+};
+
+var BASE_URL = ENV_BASE_URL["development" || false]; //后台根域名
+exports.BASE_URL = BASE_URL;var API_URL = ENV_API_URL["development" || false]; //后台接口域名
+exports.API_URL = API_URL;var HAS_LIVE = false; //后台是否开通直播权限,根据情况在manifest.json中，开启注释相应组件的引入。
+exports.HAS_LIVE = HAS_LIVE;
+var IMG_URL = 'https://shopro.7wpp.com'; //全局网络图片地址变量，css背景图片地址变量在uni.scss
+exports.IMG_URL = IMG_URL;
+
+/***/ }),
+
 /***/ 13:
 /*!***********************************************************************************!*\
   !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/store/modules/user.js ***!
@@ -3263,6 +3659,105 @@ var getters = {};var _default =
   mutations: mutations,
   actions: actions,
   getters: getters };exports.default = _default;
+
+/***/ }),
+
+/***/ 136:
+/*!***************************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/request/JD.js ***!
+  \***************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default = {
+
+  init: {
+    url: 'index/init',
+    auth: false,
+    method: 'GET' },
+
+
+  /** 商品 ↓ **/
+  goods: {
+    lists: {
+      url: 'goods/lists',
+      auth: false,
+      method: 'GET'
+      // desc: '商品列表',
+    },
+    seckillList: {
+      url: 'goods/seckillList',
+      auth: false,
+      method: 'GET'
+      // desc: '秒杀列表',
+    },
+    activity: {
+      url: 'goods/activity',
+      auth: false,
+      method: 'GET'
+      // desc: '活动商品',
+    },
+    myGroupon: {
+      url: 'activity_groupon/myGroupon',
+      auth: true,
+      method: 'GET'
+      // desc: '我的拼团',
+    },
+    grouponDetail: {
+      url: 'activity_groupon/detail',
+      auth: true,
+      method: 'GET'
+      // desc: '拼团详情',
+    },
+    grouponItem: {
+      url: 'activity_groupon/index',
+      auth: false,
+      method: 'GET'
+      // desc: '拼购列表',
+    },
+    grouponList: {
+      url: 'goods/grouponList',
+      auth: false,
+      method: 'GET'
+      // desc: '拼团商品列表',
+    },
+    detail: {
+      url: 'goods/detail',
+      auth: false,
+      method: 'GET'
+      // desc: '商品详情',
+    },
+    favorite: {
+      url: 'goods/favorite',
+      auth: true,
+      method: 'POST'
+      // desc: '商品收藏',
+    },
+    favoriteList: {
+      url: 'goods/favoriteList',
+      auth: true,
+      method: 'GET'
+      // desc: '商品收藏列表',
+    },
+    viewList: {
+      url: 'goods/viewList',
+      auth: true,
+      method: 'GET'
+      // desc: '足迹列表',
+    },
+    viewDelete: {
+      url: 'goods/viewDelete',
+      auth: true,
+      method: 'POST'
+      // desc: '删除足迹',
+    },
+    storeAddress: {
+      url: 'goods/store',
+      auth: true,
+      method: 'GET'
+      // desc: '商品支持的自提点',
+    } } };exports.default = _default;
 
 /***/ }),
 
