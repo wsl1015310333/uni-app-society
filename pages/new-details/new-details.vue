@@ -14,6 +14,9 @@
 		},
 		methods: {
 			
+		},
+		onLoad() {
+			console.log(this.$Route.query.id)
 		}
 	}
 </script>

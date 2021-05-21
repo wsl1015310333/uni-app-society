@@ -339,7 +339,8 @@ var demo = [{
       // 	url:'../new-details/new-details'
       // })
       this.$Router.push({
-        path: '../new-details/new-details' });
+        path: '/pages/new-details/new-details',
+        query: { id: 1 } });
 
 
       uni.authorize({

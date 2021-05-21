@@ -142,7 +142,12 @@ var _default =
 
 
   },
-  methods: {} };exports.default = _default;
+  methods: {},
+
+
+  onLoad: function onLoad() {
+    console.log(this.$Route.query.id);
+  } };exports.default = _default;
 
 /***/ })
 
