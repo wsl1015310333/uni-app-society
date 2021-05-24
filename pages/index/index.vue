@@ -47,6 +47,7 @@
 </template>
 
 <script>
+	import { mapMutations, mapActions, mapState } from 'vuex';
 	
 import commonList from "@/components/common/common-list.vue";
 import loadMore from '../../components/common/load-more.vue'
@@ -138,7 +139,7 @@ const demo=[{
 			})
 		},
 		onLoad() {
-
+this.init()
 			let res = uni.getSystemInfo({
 				success: res => {
 					console.log(res.windowHeight)
@@ -156,9 +157,18 @@ const demo=[{
 			})
 		},
 		methods: {
+			...mapActions(['getAppInit']),
+			init(){
+				
+				return Promise.all([this.getAppInit()]).then(() => {
+					uni.stopPullDownRefresh();
+				});
+				console.log("1111")
+			},
 			onChangeTab(e) {
 				console.log(e)
 			},
+			
 			changeTab(index) {
 				if (this.tabIndex === index) {
 					return

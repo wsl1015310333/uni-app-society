@@ -1870,6 +1870,74 @@ uni$1;exports.default = _default;
 
 /***/ }),
 
+/***/ 101:
+/*!***********************************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/store/modules/init.js ***!
+  \***********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _index = _interopRequireDefault(__webpack_require__(/*! @/common/request/index */ 12));
+var _store = _interopRequireDefault(__webpack_require__(/*! @/common/store */ 19));
+var _router = _interopRequireDefault(__webpack_require__(/*! ../../../router.js */ 21));
+
+var _types = __webpack_require__(/*! ../types.js */ 23);var _mutations;function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}
+
+
+
+
+
+var state = {
+  initData: {},
+  routes: [],
+  addons: uni.getStorageSync('addons') ? uni.getStorageSync('addons') : [], //插件列表
+  templateData: uni.getStorageSync('templateData') ? uni.getStorageSync('templateData') : {},
+  hasTemplate: true, //是否有初始化数据
+  noNetwork: false //是否有网络
+};
+var actions = {
+  getAppInit: function getAppInit(_ref)
+
+  {var commit = _ref.commit;
+    uni.setStorageSync('mode', 'product');
+    return new Promise(function (resolve, reject) {
+      (0, _index.default)('init').then(function (res) {
+        commit('INIT_DATA', res.data);
+        uni.setStorageSync('sysInfo', res.data.info);
+        uni.setStorageSync('shareInfo', res.data.share);
+        uni.setStorageSync('addons', res.data.addons);
+        uni.setStorageSync('chat', res.data.chat);
+        commit('noNetwork', false);
+        resolve(res);
+      }).catch(function (e) {
+        commit('noNetwork', true);
+        reject(e);
+      });
+    });
+  } };
+
+var mutations = (_mutations = {}, _defineProperty(_mutations,
+_types.PAGE_ROUTES, function (state, data) {
+  state.data = data;
+}), _defineProperty(_mutations,
+
+_types.INIT_DATA, function (state, data) {
+}), _mutations);
+
+var getters = {};var _default =
+
+
+
+{
+  state: state,
+  mutations: mutations,
+  actions: actions,
+  getters: getters };exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
+
 /***/ 11:
 /*!**********************************************************************************************************!*\
   !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/runtime/componentNormalizer.js ***!
@@ -1999,7 +2067,7 @@ function normalizeComponent (
 
 /***/ }),
 
-/***/ 111:
+/***/ 118:
 /*!*******************************************************************************************!*\
   !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/components/uni-ui/uni-icons/icons.js ***!
   \*******************************************************************************************/
@@ -2141,47 +2209,638 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 
 /***/ }),
 
-/***/ 119:
+/***/ 12:
+/*!******************************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/request/index.js ***!
+  \******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = api;var _request = _interopRequireDefault(__webpack_require__(/*! ./request */ 13));
+var _JD = _interopRequireDefault(__webpack_require__(/*! ./JD.js */ 18));
+var _index = _interopRequireDefault(__webpack_require__(/*! @/common/store/index.js */ 19));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+
+function api(url) {var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};var showToast = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+  var request = new _request.default();
+  var api = getApiObj(url);
+  request.interceptor.request(function (config, cancel) {/* 请求之前拦截器 */
+    // if (api.auth) {
+    // 	let token = uni.getStorageSync('token');
+    // 	if (!token) {
+    // 		store.commit('LOGIN_TIP', true)
+    // 		store.commit('OUT_LOGIN');
+    // 		throw ('暂未登录,已阻止此次API请求~');
+    // 	}
+    // }
+    // if (uni.getStorageSync('token')) {
+    // 	config.header.token = uni.getStorageSync('token');
+    // }
+    return config;
+  });
+
+  request.interceptor.response(function (response) {/* 请求之后拦截器 */
+    if (response.data.code === 0) {// 服务端返回的状态码不等于200，则reject()
+      if (showToast) {
+        uni.showToast({
+          title: response.data.msg || '请求出错,稍后重试',
+          icon: 'none',
+          duration: 1000,
+          mask: true });
+
+      }
+
+    }
+
+    if (response.data.code === 401) {// 服务端返回的状态码不等于200，则reject()
+      uni.removeStorageSync('token');
+      _index.default.commit('LOGIN_TIP', true);
+    }
+    // if (response.config.custom.verification) { // 演示自定义参数的作用
+    //   return response.data
+    // }
+    return response;
+  }, function (response) {// 预留可以日志上报
+    return response;
+  });
+
+  return request.request({
+    url: api.url,
+    data: data,
+    method: api.method });
+
+
+}
+
+function getApiObj(url) {
+  var apiArray = url.split(".");
+  var api = _JD.default;
+  apiArray.forEach(function (v) {
+    api = api[v];
+  });
+  return api;
+}
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
+
+/***/ 126:
+/*!***************************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/permission.js ***!
+  \***************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(uni) {/// null = 未请求，1 = 已允许，0 = 拒绝|受限, 2 = 系统未开启
+
+var isIOS;
+
+function album() {
+  var result = 0;
+  var PHPhotoLibrary = plus.ios.import("PHPhotoLibrary");
+  var authStatus = PHPhotoLibrary.authorizationStatus();
+  if (authStatus === 0) {
+    result = null;
+  } else if (authStatus == 3) {
+    result = 1;
+  } else {
+    result = 0;
+  }
+  plus.ios.deleteObject(PHPhotoLibrary);
+  return result;
+}
+
+function camera() {
+  var result = 0;
+  var AVCaptureDevice = plus.ios.import("AVCaptureDevice");
+  var authStatus = AVCaptureDevice.authorizationStatusForMediaType('vide');
+  if (authStatus === 0) {
+    result = null;
+  } else if (authStatus == 3) {
+    result = 1;
+  } else {
+    result = 0;
+  }
+  plus.ios.deleteObject(AVCaptureDevice);
+  return result;
+}
+
+function location() {
+  var result = 0;
+  var cllocationManger = plus.ios.import("CLLocationManager");
+  var enable = cllocationManger.locationServicesEnabled();
+  var status = cllocationManger.authorizationStatus();
+  if (!enable) {
+    result = 2;
+  } else if (status === 0) {
+    result = null;
+  } else if (status === 3 || status === 4) {
+    result = 1;
+  } else {
+    result = 0;
+  }
+  plus.ios.deleteObject(cllocationManger);
+  return result;
+}
+
+function push() {
+  var result = 0;
+  var UIApplication = plus.ios.import("UIApplication");
+  var app = UIApplication.sharedApplication();
+  var enabledTypes = 0;
+  if (app.currentUserNotificationSettings) {
+    var settings = app.currentUserNotificationSettings();
+    enabledTypes = settings.plusGetAttribute("types");
+    if (enabledTypes == 0) {
+      result = 0;
+      console.log("推送权限没有开启");
+    } else {
+      result = 1;
+      console.log("已经开启推送功能!");
+    }
+    plus.ios.deleteObject(settings);
+  } else {
+    enabledTypes = app.enabledRemoteNotificationTypes();
+    if (enabledTypes == 0) {
+      result = 3;
+      console.log("推送权限没有开启!");
+    } else {
+      result = 4;
+      console.log("已经开启推送功能!");
+    }
+  }
+  plus.ios.deleteObject(app);
+  plus.ios.deleteObject(UIApplication);
+  return result;
+}
+
+function contact() {
+  var result = 0;
+  var CNContactStore = plus.ios.import("CNContactStore");
+  var cnAuthStatus = CNContactStore.authorizationStatusForEntityType(0);
+  if (cnAuthStatus === 0) {
+    result = null;
+  } else if (cnAuthStatus == 3) {
+    result = 1;
+  } else {
+    result = 0;
+  }
+  plus.ios.deleteObject(CNContactStore);
+  return result;
+}
+
+function record() {
+  var result = null;
+  var avaudiosession = plus.ios.import("AVAudioSession");
+  var avaudio = avaudiosession.sharedInstance();
+  var status = avaudio.recordPermission();
+  console.log("permissionStatus:" + status);
+  if (status === 1970168948) {
+    result = null;
+  } else if (status === 1735552628) {
+    result = 1;
+  } else {
+    result = 0;
+  }
+  plus.ios.deleteObject(avaudiosession);
+  return result;
+}
+
+function calendar() {
+  var result = null;
+  var EKEventStore = plus.ios.import("EKEventStore");
+  var ekAuthStatus = EKEventStore.authorizationStatusForEntityType(0);
+  if (ekAuthStatus == 3) {
+    result = 1;
+    console.log("日历权限已经开启");
+  } else {
+    console.log("日历权限没有开启");
+  }
+  plus.ios.deleteObject(EKEventStore);
+  return result;
+}
+
+function memo() {
+  var result = null;
+  var EKEventStore = plus.ios.import("EKEventStore");
+  var ekAuthStatus = EKEventStore.authorizationStatusForEntityType(1);
+  if (ekAuthStatus == 3) {
+    result = 1;
+    console.log("备忘录权限已经开启");
+  } else {
+    console.log("备忘录权限没有开启");
+  }
+  plus.ios.deleteObject(EKEventStore);
+  return result;
+}
+
+
+function requestIOS(permissionID) {
+  return new Promise(function (resolve, reject) {
+    switch (permissionID) {
+      case "push":
+        resolve(push());
+        break;
+      case "location":
+        resolve(location());
+        break;
+      case "record":
+        resolve(record());
+        break;
+      case "camera":
+        resolve(camera());
+        break;
+      case "album":
+        resolve(album());
+        break;
+      case "contact":
+        resolve(contact());
+        break;
+      case "calendar":
+        resolve(calendar());
+        break;
+      case "memo":
+        resolve(memo());
+        break;
+      default:
+        resolve(0);
+        break;}
+
+  });
+}
+
+function requestAndroid(permissionID) {
+  return new Promise(function (resolve, reject) {
+    plus.android.requestPermissions(
+    [permissionID],
+    function (resultObj) {
+      var result = 0;
+      for (var i = 0; i < resultObj.granted.length; i++) {
+        var grantedPermission = resultObj.granted[i];
+        console.log('已获取的权限：' + grantedPermission);
+        result = 1;
+      }
+      for (var i = 0; i < resultObj.deniedPresent.length; i++) {
+        var deniedPresentPermission = resultObj.deniedPresent[i];
+        console.log('拒绝本次申请的权限：' + deniedPresentPermission);
+        result = 0;
+      }
+      for (var i = 0; i < resultObj.deniedAlways.length; i++) {
+        var deniedAlwaysPermission = resultObj.deniedAlways[i];
+        console.log('永久拒绝申请的权限：' + deniedAlwaysPermission);
+        result = -1;
+      }
+      resolve(result);
+    },
+    function (error) {
+      console.log('result error: ' + error.message);
+      resolve({
+        code: error.code,
+        message: error.message });
+
+    });
+
+  });
+}
+
+function gotoAppPermissionSetting() {
+  if (permission.isIOS) {
+    var UIApplication = plus.ios.import("UIApplication");
+    var application2 = UIApplication.sharedApplication();
+    var NSURL2 = plus.ios.import("NSURL");
+    var setting2 = NSURL2.URLWithString("app-settings:");
+    application2.openURL(setting2);
+    plus.ios.deleteObject(setting2);
+    plus.ios.deleteObject(NSURL2);
+    plus.ios.deleteObject(application2);
+  } else {
+    var Intent = plus.android.importClass("android.content.Intent");
+    var Settings = plus.android.importClass("android.provider.Settings");
+    var Uri = plus.android.importClass("android.net.Uri");
+    var mainActivity = plus.android.runtimeMainActivity();
+    var intent = new Intent();
+    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+    var uri = Uri.fromParts("package", mainActivity.getPackageName(), null);
+    intent.setData(uri);
+    mainActivity.startActivity(intent);
+  }
+}
+
+var permission = {
+  get isIOS() {
+    return typeof isIOS === 'boolean' ? isIOS : isIOS = uni.getSystemInfoSync().platform === 'ios';
+  },
+  requestIOS: requestIOS,
+  requestAndroid: requestAndroid,
+  gotoAppSetting: gotoAppPermissionSetting };
+
+
+module.exports = permission;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
+
+/***/ 13:
+/*!********************************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/request/request.js ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _regenerator = _interopRequireDefault(__webpack_require__(/*! ./node_modules/@babel/runtime/regenerator */ 14));var _env = __webpack_require__(/*! @/env */ 17);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function ownKeys(object, enumerableOnly) {var keys = Object.keys(object);if (Object.getOwnPropertySymbols) {var symbols = Object.getOwnPropertySymbols(object);if (enumerableOnly) symbols = symbols.filter(function (sym) {return Object.getOwnPropertyDescriptor(object, sym).enumerable;});keys.push.apply(keys, symbols);}return keys;}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};if (i % 2) {ownKeys(Object(source), true).forEach(function (key) {_defineProperty(target, key, source[key]);});} else if (Object.getOwnPropertyDescriptors) {Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));} else {ownKeys(Object(source)).forEach(function (key) {Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));});}}return target;}function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {try {var info = gen[key](arg);var value = info.value;} catch (error) {reject(error);return;}if (info.done) {resolve(value);} else {Promise.resolve(value).then(_next, _throw);}}function _asyncToGenerator(fn) {return function () {var self = this,args = arguments;return new Promise(function (resolve, reject) {var gen = fn.apply(self, args);function _next(value) {asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);}function _throw(err) {asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);}_next(undefined);});};}function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}function _defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}function _createClass(Constructor, protoProps, staticProps) {if (protoProps) _defineProperties(Constructor.prototype, protoProps);if (staticProps) _defineProperties(Constructor, staticProps);return Constructor;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}var
+
+
+
+Request = /*#__PURE__*/function () {function Request() {var _this = this;_classCallCheck(this, Request);_defineProperty(this, "config",
+    {
+      baseUrl: _env.API_URL,
+      header: {
+        'content-type': 'application/json',
+        'platform': uni.getStorageSync('platform') },
+
+      method: 'GET',
+      dataType: 'json',
+
+      responseType: 'text',
+
+      custom: {} });_defineProperty(this, "interceptor",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    {
+      /**
+       * @param {Request~requestCallback} cb - 请求之前拦截,接收一个函数（config, cancel）=> {return config}。第一个参数为全局config,第二个参数为函数，调用则取消本次请求。
+       */
+      request: function request(cb) {
+        if (cb) {
+          _this.requestBeforeFun = cb;
+        }
+      },
+      /**
+          * @param {Request~responseCallback} cb 响应拦截器，对响应数据做点什么
+          * @param {Request~responseErrCallback} ecb 响应拦截器，对响应错误做点什么
+          */
+      response: function response(cb, ecb) {
+        if (cb && ecb) {
+          _this.requestComFun = cb;
+          _this.requestComFail = ecb;
+        }
+      } });}_createClass(Request, [{ key: "requestBeforeFun", value: function requestBeforeFun(
+
+
+    config) {
+      return config;
+    } }, { key: "requestComFun", value: function requestComFun(
+
+    response) {
+      return response;
+    } }, { key: "requestComFail", value: function requestComFail(
+
+    response) {
+      return response;
+    }
+
+    /**
+       * 自定义验证器，如果返回true 则进入响应拦截器的响应成功函数(resolve)，否则进入响应拦截器的响应错误函数(reject)
+       * @param { Number } statusCode - 请求响应体statusCode（只读）
+       * @return { Boolean } 如果为true,则 resolve, 否则 reject
+       */ }, { key: "validateStatus", value: function validateStatus(
+    statusCode) {
+      return statusCode === 200;
+    }
+
+    /**
+       * @Function
+       * @param {Request~setConfigCallback} f - 设置全局默认配置
+       */ }, { key: "setConfig", value: function setConfig(
+    f) {
+      this.config = f(this.config);
+    }
+
+    /**
+       * @Function
+       * @param {Object} options - 请求配置项
+       * @prop {String} options.url - 请求路径
+       * @prop {Object} options.data - 请求参数
+       * @prop {Object} [options.responseType = config.responseType] [text|arraybuffer] - 响应的数据类型
+       * @prop {Object} [options.dataType = config.dataType] - 如果设为 json，会尝试对返回的数据做一次 JSON.parse
+       * @prop {Object} [options.header = config.header] - 请求header
+       * @prop {Object} [options.method = config.method] - 请求方法
+       * @returns {Promise<unknown>}
+       */ }, { key: "request", value: function () {var _request = _asyncToGenerator( /*#__PURE__*/_regenerator.default.mark(function _callee() {var _this2 = this;var options,_args = arguments;return _regenerator.default.wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:
+                options = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
+                options.baseUrl = this.config.baseUrl;
+                options.dataType = options.dataType || this.config.dataType;
+
+                options.responseType = options.responseType || this.config.responseType;
+
+
+
+
+                options.url = options.url || '';
+                options.data = options.data || {};
+                options.params = options.params || {};
+                options.header = options.header || this.config.header;
+                options.method = options.method || this.config.method;
+                options.custom = _objectSpread(_objectSpread({}, this.config.custom),
+                options.custom || {});return _context.abrupt("return",
+
+
+
+
+                new Promise(function (resolve, reject) {
+                  var next = true;
+                  var handleRe = {};
+
+                  options.complete = function (response) {
+                    response.config = handleRe;
+                    if (_this2.validateStatus(response.statusCode)) {// 成功
+                      response = _this2.requestComFun(response);
+                      resolve(response.data);
+                    } else if (401 === response.statusCode) {
+                      response = _this2.requestComFun(response);
+                      resolve(response.data);
+                    } else if (500 === response.statusCode) {
+                      resolve(response.data);
+                    } else {
+                      response = _this2.requestComFail(response);
+                      reject(response);
+                    }
+                  };
+                  var cancel = function cancel() {var t = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'handle cancel';var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : options;
+                    var err = {
+                      errMsg: t,
+                      config: config };
+
+                    reject(err);
+                    next = false;
+                  };
+
+                  handleRe = _objectSpread({}, _this2.requestBeforeFun(options, cancel));
+
+                  var _config = _objectSpread({}, handleRe);
+
+                  if (!next) return;
+                  delete _config.custom;
+                  var mergeUrl = Request.posUrl(_config.url) ? _config.url : _config.baseUrl + _config.url;
+                  if (JSON.stringify(_config.params) !== '{}') {
+                    var paramsH = Request.addQueryString(_config.params);
+                    mergeUrl += mergeUrl.indexOf('?') === -1 ? "?".concat(paramsH) : "&".concat(paramsH);
+                  }
+                  _config.url = mergeUrl;
+                  uni.request(_config);
+                }));case 11:case "end":return _context.stop();}}}, _callee, this);}));function request() {return _request.apply(this, arguments);}return request;}() }, { key: "get", value: function get(
+
+
+    url) {var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return this.request(_objectSpread({
+        url: url,
+        method: 'GET' },
+      options));
+
+    } }, { key: "post", value: function post(
+
+    url, data) {var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      return this.request(_objectSpread({
+        url: url,
+        data: data,
+        method: 'POST' },
+      options));
+
+    } }, { key: "upload", value: function upload(
+
+    url, _ref)
+
+
+
+
+
+
+
+
+
+
+
+    {var _this3 = this;var filePath = _ref.filePath,name = _ref.name,header = _ref.header,formData = _ref.formData,custom = _ref.custom;
+      return new Promise(function (resolve, reject) {
+        var next = true;
+        var handleRe = {};
+        var globalHeader = _objectSpread({}, _this3.config.header);
+
+        delete globalHeader['content-type'];
+        var pubConfig = {
+          baseUrl: _this3.config.baseUrl,
+          url: url,
+
+
+
+
+
+
+          filePath: filePath,
+          method: 'UPLOAD',
+          name: name,
+          header: header || globalHeader,
+          formData: formData,
+          custom: _objectSpread(_objectSpread({}, _this3.config.custom),
+          custom || {}),
+
+          complete: function complete(response) {
+            response.config = handleRe;
+            if (response.statusCode === 200) {// 成功
+              response = _this3.requestComFun(response);
+              resolve(response);
+            } else {
+              response = _this3.requestComFail(response);
+              reject(response);
+            }
+          } };
+
+        var cancel = function cancel() {var t = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'handle cancel';var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : pubConfig;
+          var err = {
+            errMsg: t,
+            config: config };
+
+          reject(err);
+          next = false;
+        };
+
+        handleRe = _objectSpread({}, _this3.requestBeforeFun(pubConfig, cancel));
+
+        var _config = _objectSpread({}, handleRe);
+
+        if (!next) return;
+        delete _config.custom;
+        _config.url = Request.posUrl(_config.url) ? _config.url : _config.baseUrl + _config.url;
+        uni.uploadFile(_config);
+      });
+    } }], [{ key: "posUrl", value: function posUrl(url) {/* 判断url是否为绝对路径 */return /(http|https):\/\/([\w.]+\/?)\S*/.test(url);} }, { key: "addQueryString", value: function addQueryString(params) {var paramsData = '';Object.keys(params).forEach(function (key) {paramsData += key + '=' + encodeURIComponent(params[key]) + '&';});return paramsData.substring(0, paramsData.length - 1);} /**
+                                                                                                                                                                                                                                                                                                                                                                                                * @property {Function} request 请求拦截器
+                                                                                                                                                                                                                                                                                                                                                                                                * @property {Function} response 响应拦截器
+                                                                                                                                                                                                                                                                                                                                                                                                * @type {{request: Request.interceptor.request, response: Request.interceptor.response}}
+                                                                                                                                                                                                                                                                                                                                                                                                */ }]);return Request;}(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                            * setConfig回调
+                                                                                                                                                                                                                                                                                                                                                                                                                            * @return {Object} - 返回操作后的config
+                                                                                                                                                                                                                                                                                                                                                                                                                            * @callback Request~setConfigCallback
+                                                                                                                                                                                                                                                                                                                                                                                                                            * @param {Object} config - 全局默认config
+                                                                                                                                                                                                                                                                                                                                                                                                                            */ /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                * 请求拦截器回调
+                                                                                                                                                                                                                                                                                                                                                                                                                                * @return {Object} - 返回操作后的config
+                                                                                                                                                                                                                                                                                                                                                                                                                                * @callback Request~requestCallback
+                                                                                                                                                                                                                                                                                                                                                                                                                                * @param {Object} config - 全局config
+                                                                                                                                                                                                                                                                                                                                                                                                                                * @param {Function} [cancel] - 取消请求钩子，调用会取消本次请求
+                                                                                                                                                                                                                                                                                                                                                                                                                                */
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                    * 响应拦截器回调
+                                                                                                                                                                                                                                                                                                                                                                                                                                    * @return {Object} - 返回操作后的response
+                                                                                                                                                                                                                                                                                                                                                                                                                                    * @callback Request~responseCallback
+                                                                                                                                                                                                                                                                                                                                                                                                                                    * @param {Object} response - 请求结果 response
+                                                                                                                                                                                                                                                                                                                                                                                                                                    */
+/**
+                                                                                                                                                                                                                                                                                                                                                                                                                                        * 响应错误拦截器回调
+                                                                                                                                                                                                                                                                                                                                                                                                                                        * @return {Object} - 返回操作后的response
+                                                                                                                                                                                                                                                                                                                                                                                                                                        * @callback Request~responseErrCallback
+                                                                                                                                                                                                                                                                                                                                                                                                                                        * @param {Object} response - 请求结果 response
+                                                                                                                                                                                                                                                                                                                                                                                                                                        */exports.default = Request;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
+
+/***/ 14:
 /*!**********************************************************!*\
   !*** ./node_modules/@babel/runtime/regenerator/index.js ***!
   \**********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! regenerator-runtime */ 120);
+module.exports = __webpack_require__(/*! regenerator-runtime */ 15);
 
 /***/ }),
 
-/***/ 12:
-/*!****************************************************************************!*\
-  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/store/index.js ***!
-  \****************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));
-var _vuex = _interopRequireDefault(__webpack_require__(/*! vuex */ 8));
-
-
-
-
-var _user = _interopRequireDefault(__webpack_require__(/*! ./modules/user.js */ 13));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}_vue.default.use(_vuex.default); // import init from './modules/init.js'
-//import cart from './modules/cart.js'
-
-var store = new _vuex.default.Store({
-  modules: {
-    // init,
-    user: _user.default
-    // cart
-  } });var _default =
-
-
-store;exports.default = _default;
-
-/***/ }),
-
-/***/ 120:
+/***/ 15:
 /*!************************************************************!*\
   !*** ./node_modules/regenerator-runtime/runtime-module.js ***!
   \************************************************************/
@@ -2212,7 +2871,7 @@ var oldRuntime = hadRuntime && g.regeneratorRuntime;
 // Force reevalutation of runtime.js.
 g.regeneratorRuntime = undefined;
 
-module.exports = __webpack_require__(/*! ./runtime */ 121);
+module.exports = __webpack_require__(/*! ./runtime */ 16);
 
 if (hadRuntime) {
   // Restore the original runtime.
@@ -2229,7 +2888,7 @@ if (hadRuntime) {
 
 /***/ }),
 
-/***/ 121:
+/***/ 16:
 /*!*****************************************************!*\
   !*** ./node_modules/regenerator-runtime/runtime.js ***!
   \*****************************************************/
@@ -2961,627 +3620,7 @@ if (hadRuntime) {
 
 /***/ }),
 
-/***/ 122:
-/*!***************************************************************************!*\
-  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/permission.js ***!
-  \***************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(uni) {/// null = 未请求，1 = 已允许，0 = 拒绝|受限, 2 = 系统未开启
-
-var isIOS;
-
-function album() {
-  var result = 0;
-  var PHPhotoLibrary = plus.ios.import("PHPhotoLibrary");
-  var authStatus = PHPhotoLibrary.authorizationStatus();
-  if (authStatus === 0) {
-    result = null;
-  } else if (authStatus == 3) {
-    result = 1;
-  } else {
-    result = 0;
-  }
-  plus.ios.deleteObject(PHPhotoLibrary);
-  return result;
-}
-
-function camera() {
-  var result = 0;
-  var AVCaptureDevice = plus.ios.import("AVCaptureDevice");
-  var authStatus = AVCaptureDevice.authorizationStatusForMediaType('vide');
-  if (authStatus === 0) {
-    result = null;
-  } else if (authStatus == 3) {
-    result = 1;
-  } else {
-    result = 0;
-  }
-  plus.ios.deleteObject(AVCaptureDevice);
-  return result;
-}
-
-function location() {
-  var result = 0;
-  var cllocationManger = plus.ios.import("CLLocationManager");
-  var enable = cllocationManger.locationServicesEnabled();
-  var status = cllocationManger.authorizationStatus();
-  if (!enable) {
-    result = 2;
-  } else if (status === 0) {
-    result = null;
-  } else if (status === 3 || status === 4) {
-    result = 1;
-  } else {
-    result = 0;
-  }
-  plus.ios.deleteObject(cllocationManger);
-  return result;
-}
-
-function push() {
-  var result = 0;
-  var UIApplication = plus.ios.import("UIApplication");
-  var app = UIApplication.sharedApplication();
-  var enabledTypes = 0;
-  if (app.currentUserNotificationSettings) {
-    var settings = app.currentUserNotificationSettings();
-    enabledTypes = settings.plusGetAttribute("types");
-    if (enabledTypes == 0) {
-      result = 0;
-      console.log("推送权限没有开启");
-    } else {
-      result = 1;
-      console.log("已经开启推送功能!");
-    }
-    plus.ios.deleteObject(settings);
-  } else {
-    enabledTypes = app.enabledRemoteNotificationTypes();
-    if (enabledTypes == 0) {
-      result = 3;
-      console.log("推送权限没有开启!");
-    } else {
-      result = 4;
-      console.log("已经开启推送功能!");
-    }
-  }
-  plus.ios.deleteObject(app);
-  plus.ios.deleteObject(UIApplication);
-  return result;
-}
-
-function contact() {
-  var result = 0;
-  var CNContactStore = plus.ios.import("CNContactStore");
-  var cnAuthStatus = CNContactStore.authorizationStatusForEntityType(0);
-  if (cnAuthStatus === 0) {
-    result = null;
-  } else if (cnAuthStatus == 3) {
-    result = 1;
-  } else {
-    result = 0;
-  }
-  plus.ios.deleteObject(CNContactStore);
-  return result;
-}
-
-function record() {
-  var result = null;
-  var avaudiosession = plus.ios.import("AVAudioSession");
-  var avaudio = avaudiosession.sharedInstance();
-  var status = avaudio.recordPermission();
-  console.log("permissionStatus:" + status);
-  if (status === 1970168948) {
-    result = null;
-  } else if (status === 1735552628) {
-    result = 1;
-  } else {
-    result = 0;
-  }
-  plus.ios.deleteObject(avaudiosession);
-  return result;
-}
-
-function calendar() {
-  var result = null;
-  var EKEventStore = plus.ios.import("EKEventStore");
-  var ekAuthStatus = EKEventStore.authorizationStatusForEntityType(0);
-  if (ekAuthStatus == 3) {
-    result = 1;
-    console.log("日历权限已经开启");
-  } else {
-    console.log("日历权限没有开启");
-  }
-  plus.ios.deleteObject(EKEventStore);
-  return result;
-}
-
-function memo() {
-  var result = null;
-  var EKEventStore = plus.ios.import("EKEventStore");
-  var ekAuthStatus = EKEventStore.authorizationStatusForEntityType(1);
-  if (ekAuthStatus == 3) {
-    result = 1;
-    console.log("备忘录权限已经开启");
-  } else {
-    console.log("备忘录权限没有开启");
-  }
-  plus.ios.deleteObject(EKEventStore);
-  return result;
-}
-
-
-function requestIOS(permissionID) {
-  return new Promise(function (resolve, reject) {
-    switch (permissionID) {
-      case "push":
-        resolve(push());
-        break;
-      case "location":
-        resolve(location());
-        break;
-      case "record":
-        resolve(record());
-        break;
-      case "camera":
-        resolve(camera());
-        break;
-      case "album":
-        resolve(album());
-        break;
-      case "contact":
-        resolve(contact());
-        break;
-      case "calendar":
-        resolve(calendar());
-        break;
-      case "memo":
-        resolve(memo());
-        break;
-      default:
-        resolve(0);
-        break;}
-
-  });
-}
-
-function requestAndroid(permissionID) {
-  return new Promise(function (resolve, reject) {
-    plus.android.requestPermissions(
-    [permissionID],
-    function (resultObj) {
-      var result = 0;
-      for (var i = 0; i < resultObj.granted.length; i++) {
-        var grantedPermission = resultObj.granted[i];
-        console.log('已获取的权限：' + grantedPermission);
-        result = 1;
-      }
-      for (var i = 0; i < resultObj.deniedPresent.length; i++) {
-        var deniedPresentPermission = resultObj.deniedPresent[i];
-        console.log('拒绝本次申请的权限：' + deniedPresentPermission);
-        result = 0;
-      }
-      for (var i = 0; i < resultObj.deniedAlways.length; i++) {
-        var deniedAlwaysPermission = resultObj.deniedAlways[i];
-        console.log('永久拒绝申请的权限：' + deniedAlwaysPermission);
-        result = -1;
-      }
-      resolve(result);
-    },
-    function (error) {
-      console.log('result error: ' + error.message);
-      resolve({
-        code: error.code,
-        message: error.message });
-
-    });
-
-  });
-}
-
-function gotoAppPermissionSetting() {
-  if (permission.isIOS) {
-    var UIApplication = plus.ios.import("UIApplication");
-    var application2 = UIApplication.sharedApplication();
-    var NSURL2 = plus.ios.import("NSURL");
-    var setting2 = NSURL2.URLWithString("app-settings:");
-    application2.openURL(setting2);
-    plus.ios.deleteObject(setting2);
-    plus.ios.deleteObject(NSURL2);
-    plus.ios.deleteObject(application2);
-  } else {
-    var Intent = plus.android.importClass("android.content.Intent");
-    var Settings = plus.android.importClass("android.provider.Settings");
-    var Uri = plus.android.importClass("android.net.Uri");
-    var mainActivity = plus.android.runtimeMainActivity();
-    var intent = new Intent();
-    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-    var uri = Uri.fromParts("package", mainActivity.getPackageName(), null);
-    intent.setData(uri);
-    mainActivity.startActivity(intent);
-  }
-}
-
-var permission = {
-  get isIOS() {
-    return typeof isIOS === 'boolean' ? isIOS : isIOS = uni.getSystemInfoSync().platform === 'ios';
-  },
-  requestIOS: requestIOS,
-  requestAndroid: requestAndroid,
-  gotoAppSetting: gotoAppPermissionSetting };
-
-
-module.exports = permission;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
-
-/***/ }),
-
-/***/ 126:
-/*!******************************************************************************!*\
-  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/request/index.js ***!
-  \******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = api;var _request = _interopRequireDefault(__webpack_require__(/*! ./request */ 127));
-var _JD = _interopRequireDefault(__webpack_require__(/*! ./JD.js */ 136));
-var _index = _interopRequireDefault(__webpack_require__(/*! @/common/store/index.js */ 12));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
-
-function api(url) {var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};var showToast = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-  var request = new _request.default();
-  var api = getApiObj(url);
-  request.interceptor.request(function (config, cancel) {/* 请求之前拦截器 */
-    // if (api.auth) {
-    // 	let token = uni.getStorageSync('token');
-    // 	if (!token) {
-    // 		store.commit('LOGIN_TIP', true)
-    // 		store.commit('OUT_LOGIN');
-    // 		throw ('暂未登录,已阻止此次API请求~');
-    // 	}
-    // }
-    // if (uni.getStorageSync('token')) {
-    // 	config.header.token = uni.getStorageSync('token');
-    // }
-    return config;
-  });
-
-  request.interceptor.response(function (response) {/* 请求之后拦截器 */
-    if (response.data.code === 0) {// 服务端返回的状态码不等于200，则reject()
-      if (showToast) {
-        uni.showToast({
-          title: response.data.msg || '请求出错,稍后重试',
-          icon: 'none',
-          duration: 1000,
-          mask: true });
-
-      }
-
-    }
-
-    if (response.data.code === 401) {// 服务端返回的状态码不等于200，则reject()
-      uni.removeStorageSync('token');
-      _index.default.commit('LOGIN_TIP', true);
-    }
-    // if (response.config.custom.verification) { // 演示自定义参数的作用
-    //   return response.data
-    // }
-    return response;
-  }, function (response) {// 预留可以日志上报
-    return response;
-  });
-
-  return request.request({
-    url: api.url,
-    data: data,
-    method: api.method });
-
-
-}
-
-function getApiObj(url) {
-  var apiArray = url.split(".");
-  var api = _JD.default;
-  apiArray.forEach(function (v) {
-    api = api[v];
-  });
-  return api;
-}
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
-
-/***/ }),
-
-/***/ 127:
-/*!********************************************************************************!*\
-  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/request/request.js ***!
-  \********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _regenerator = _interopRequireDefault(__webpack_require__(/*! ./node_modules/@babel/runtime/regenerator */ 119));var _env = __webpack_require__(/*! @/env */ 128);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function ownKeys(object, enumerableOnly) {var keys = Object.keys(object);if (Object.getOwnPropertySymbols) {var symbols = Object.getOwnPropertySymbols(object);if (enumerableOnly) symbols = symbols.filter(function (sym) {return Object.getOwnPropertyDescriptor(object, sym).enumerable;});keys.push.apply(keys, symbols);}return keys;}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};if (i % 2) {ownKeys(Object(source), true).forEach(function (key) {_defineProperty(target, key, source[key]);});} else if (Object.getOwnPropertyDescriptors) {Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));} else {ownKeys(Object(source)).forEach(function (key) {Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));});}}return target;}function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {try {var info = gen[key](arg);var value = info.value;} catch (error) {reject(error);return;}if (info.done) {resolve(value);} else {Promise.resolve(value).then(_next, _throw);}}function _asyncToGenerator(fn) {return function () {var self = this,args = arguments;return new Promise(function (resolve, reject) {var gen = fn.apply(self, args);function _next(value) {asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);}function _throw(err) {asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);}_next(undefined);});};}function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}function _defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}function _createClass(Constructor, protoProps, staticProps) {if (protoProps) _defineProperties(Constructor.prototype, protoProps);if (staticProps) _defineProperties(Constructor, staticProps);return Constructor;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}var
-
-
-
-Request = /*#__PURE__*/function () {function Request() {var _this = this;_classCallCheck(this, Request);_defineProperty(this, "config",
-    {
-      baseUrl: _env.API_URL,
-      header: {
-        'content-type': 'application/json',
-        'platform': uni.getStorageSync('platform') },
-
-      method: 'GET',
-      dataType: 'json',
-
-      responseType: 'text',
-
-      custom: {} });_defineProperty(this, "interceptor",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    {
-      /**
-       * @param {Request~requestCallback} cb - 请求之前拦截,接收一个函数（config, cancel）=> {return config}。第一个参数为全局config,第二个参数为函数，调用则取消本次请求。
-       */
-      request: function request(cb) {
-        if (cb) {
-          _this.requestBeforeFun = cb;
-        }
-      },
-      /**
-          * @param {Request~responseCallback} cb 响应拦截器，对响应数据做点什么
-          * @param {Request~responseErrCallback} ecb 响应拦截器，对响应错误做点什么
-          */
-      response: function response(cb, ecb) {
-        if (cb && ecb) {
-          _this.requestComFun = cb;
-          _this.requestComFail = ecb;
-        }
-      } });}_createClass(Request, [{ key: "requestBeforeFun", value: function requestBeforeFun(
-
-
-    config) {
-      return config;
-    } }, { key: "requestComFun", value: function requestComFun(
-
-    response) {
-      return response;
-    } }, { key: "requestComFail", value: function requestComFail(
-
-    response) {
-      return response;
-    }
-
-    /**
-       * 自定义验证器，如果返回true 则进入响应拦截器的响应成功函数(resolve)，否则进入响应拦截器的响应错误函数(reject)
-       * @param { Number } statusCode - 请求响应体statusCode（只读）
-       * @return { Boolean } 如果为true,则 resolve, 否则 reject
-       */ }, { key: "validateStatus", value: function validateStatus(
-    statusCode) {
-      return statusCode === 200;
-    }
-
-    /**
-       * @Function
-       * @param {Request~setConfigCallback} f - 设置全局默认配置
-       */ }, { key: "setConfig", value: function setConfig(
-    f) {
-      this.config = f(this.config);
-    }
-
-    /**
-       * @Function
-       * @param {Object} options - 请求配置项
-       * @prop {String} options.url - 请求路径
-       * @prop {Object} options.data - 请求参数
-       * @prop {Object} [options.responseType = config.responseType] [text|arraybuffer] - 响应的数据类型
-       * @prop {Object} [options.dataType = config.dataType] - 如果设为 json，会尝试对返回的数据做一次 JSON.parse
-       * @prop {Object} [options.header = config.header] - 请求header
-       * @prop {Object} [options.method = config.method] - 请求方法
-       * @returns {Promise<unknown>}
-       */ }, { key: "request", value: function () {var _request = _asyncToGenerator( /*#__PURE__*/_regenerator.default.mark(function _callee() {var _this2 = this;var options,_args = arguments;return _regenerator.default.wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:
-                options = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
-                options.baseUrl = this.config.baseUrl;
-                options.dataType = options.dataType || this.config.dataType;
-
-                options.responseType = options.responseType || this.config.responseType;
-
-
-
-
-                options.url = options.url || '';
-                options.data = options.data || {};
-                options.params = options.params || {};
-                options.header = options.header || this.config.header;
-                options.method = options.method || this.config.method;
-                options.custom = _objectSpread(_objectSpread({}, this.config.custom),
-                options.custom || {});return _context.abrupt("return",
-
-
-
-
-                new Promise(function (resolve, reject) {
-                  var next = true;
-                  var handleRe = {};
-
-                  options.complete = function (response) {
-                    response.config = handleRe;
-                    if (_this2.validateStatus(response.statusCode)) {// 成功
-                      response = _this2.requestComFun(response);
-                      resolve(response.data);
-                    } else if (401 === response.statusCode) {
-                      response = _this2.requestComFun(response);
-                      resolve(response.data);
-                    } else if (500 === response.statusCode) {
-                      resolve(response.data);
-                    } else {
-                      response = _this2.requestComFail(response);
-                      reject(response);
-                    }
-                  };
-                  var cancel = function cancel() {var t = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'handle cancel';var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : options;
-                    var err = {
-                      errMsg: t,
-                      config: config };
-
-                    reject(err);
-                    next = false;
-                  };
-
-                  handleRe = _objectSpread({}, _this2.requestBeforeFun(options, cancel));
-
-                  var _config = _objectSpread({}, handleRe);
-
-                  if (!next) return;
-                  delete _config.custom;
-                  var mergeUrl = Request.posUrl(_config.url) ? _config.url : _config.baseUrl + _config.url;
-                  if (JSON.stringify(_config.params) !== '{}') {
-                    var paramsH = Request.addQueryString(_config.params);
-                    mergeUrl += mergeUrl.indexOf('?') === -1 ? "?".concat(paramsH) : "&".concat(paramsH);
-                  }
-                  _config.url = mergeUrl;
-                  uni.request(_config);
-                }));case 11:case "end":return _context.stop();}}}, _callee, this);}));function request() {return _request.apply(this, arguments);}return request;}() }, { key: "get", value: function get(
-
-
-    url) {var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return this.request(_objectSpread({
-        url: url,
-        method: 'GET' },
-      options));
-
-    } }, { key: "post", value: function post(
-
-    url, data) {var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      return this.request(_objectSpread({
-        url: url,
-        data: data,
-        method: 'POST' },
-      options));
-
-    } }, { key: "upload", value: function upload(
-
-    url, _ref)
-
-
-
-
-
-
-
-
-
-
-
-    {var _this3 = this;var filePath = _ref.filePath,name = _ref.name,header = _ref.header,formData = _ref.formData,custom = _ref.custom;
-      return new Promise(function (resolve, reject) {
-        var next = true;
-        var handleRe = {};
-        var globalHeader = _objectSpread({}, _this3.config.header);
-
-        delete globalHeader['content-type'];
-        var pubConfig = {
-          baseUrl: _this3.config.baseUrl,
-          url: url,
-
-
-
-
-
-
-          filePath: filePath,
-          method: 'UPLOAD',
-          name: name,
-          header: header || globalHeader,
-          formData: formData,
-          custom: _objectSpread(_objectSpread({}, _this3.config.custom),
-          custom || {}),
-
-          complete: function complete(response) {
-            response.config = handleRe;
-            if (response.statusCode === 200) {// 成功
-              response = _this3.requestComFun(response);
-              resolve(response);
-            } else {
-              response = _this3.requestComFail(response);
-              reject(response);
-            }
-          } };
-
-        var cancel = function cancel() {var t = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'handle cancel';var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : pubConfig;
-          var err = {
-            errMsg: t,
-            config: config };
-
-          reject(err);
-          next = false;
-        };
-
-        handleRe = _objectSpread({}, _this3.requestBeforeFun(pubConfig, cancel));
-
-        var _config = _objectSpread({}, handleRe);
-
-        if (!next) return;
-        delete _config.custom;
-        _config.url = Request.posUrl(_config.url) ? _config.url : _config.baseUrl + _config.url;
-        uni.uploadFile(_config);
-      });
-    } }], [{ key: "posUrl", value: function posUrl(url) {/* 判断url是否为绝对路径 */return /(http|https):\/\/([\w.]+\/?)\S*/.test(url);} }, { key: "addQueryString", value: function addQueryString(params) {var paramsData = '';Object.keys(params).forEach(function (key) {paramsData += key + '=' + encodeURIComponent(params[key]) + '&';});return paramsData.substring(0, paramsData.length - 1);} /**
-                                                                                                                                                                                                                                                                                                                                                                                                * @property {Function} request 请求拦截器
-                                                                                                                                                                                                                                                                                                                                                                                                * @property {Function} response 响应拦截器
-                                                                                                                                                                                                                                                                                                                                                                                                * @type {{request: Request.interceptor.request, response: Request.interceptor.response}}
-                                                                                                                                                                                                                                                                                                                                                                                                */ }]);return Request;}(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                            * setConfig回调
-                                                                                                                                                                                                                                                                                                                                                                                                                            * @return {Object} - 返回操作后的config
-                                                                                                                                                                                                                                                                                                                                                                                                                            * @callback Request~setConfigCallback
-                                                                                                                                                                                                                                                                                                                                                                                                                            * @param {Object} config - 全局默认config
-                                                                                                                                                                                                                                                                                                                                                                                                                            */ /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                * 请求拦截器回调
-                                                                                                                                                                                                                                                                                                                                                                                                                                * @return {Object} - 返回操作后的config
-                                                                                                                                                                                                                                                                                                                                                                                                                                * @callback Request~requestCallback
-                                                                                                                                                                                                                                                                                                                                                                                                                                * @param {Object} config - 全局config
-                                                                                                                                                                                                                                                                                                                                                                                                                                * @param {Function} [cancel] - 取消请求钩子，调用会取消本次请求
-                                                                                                                                                                                                                                                                                                                                                                                                                                */
-/**
-                                                                                                                                                                                                                                                                                                                                                                                                                                    * 响应拦截器回调
-                                                                                                                                                                                                                                                                                                                                                                                                                                    * @return {Object} - 返回操作后的response
-                                                                                                                                                                                                                                                                                                                                                                                                                                    * @callback Request~responseCallback
-                                                                                                                                                                                                                                                                                                                                                                                                                                    * @param {Object} response - 请求结果 response
-                                                                                                                                                                                                                                                                                                                                                                                                                                    */
-/**
-                                                                                                                                                                                                                                                                                                                                                                                                                                        * 响应错误拦截器回调
-                                                                                                                                                                                                                                                                                                                                                                                                                                        * @return {Object} - 返回操作后的response
-                                                                                                                                                                                                                                                                                                                                                                                                                                        * @callback Request~responseErrCallback
-                                                                                                                                                                                                                                                                                                                                                                                                                                        * @param {Object} response - 请求结果 response
-                                                                                                                                                                                                                                                                                                                                                                                                                                        */exports.default = Request;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
-
-/***/ }),
-
-/***/ 128:
+/***/ 17:
 /*!*************************************************************!*\
   !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/env.js ***!
   \*************************************************************/
@@ -3613,56 +3652,7 @@ exports.IMG_URL = IMG_URL;
 
 /***/ }),
 
-/***/ 13:
-/*!***********************************************************************************!*\
-  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/store/modules/user.js ***!
-  \***********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
-
-var _store = _interopRequireDefault(__webpack_require__(/*! @/common/store */ 12));
-var _router = _interopRequireDefault(__webpack_require__(/*! ../../../router.js */ 14));
-
-
-var _types = __webpack_require__(/*! ../types.js */ 16);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };} // 用户数据模块
-//import api from '@/common/request/index'
-//import tools from '@/common/utils/tools'
-
-
-
-
-
-
-
-
-var state = {};
-
-
-
-var actions = {};
-
-
-
-var mutations = {};
-
-
-
-var getters = {};var _default =
-
-
-
-{
-  state: state,
-  mutations: mutations,
-  actions: actions,
-  getters: getters };exports.default = _default;
-
-/***/ }),
-
-/***/ 136:
+/***/ 18:
 /*!***************************************************************************!*\
   !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/request/JD.js ***!
   \***************************************************************************/
@@ -3761,120 +3751,32 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 
 /***/ }),
 
-/***/ 14:
-/*!****************************************************************!*\
-  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/router.js ***!
-  \****************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });Object.defineProperty(exports, "RouterMount", { enumerable: true, get: function get() {return _uniSimpleRouter.RouterMount;} });exports.router = void 0;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var _uniSimpleRouter = __webpack_require__(/*! uni-simple-router */ 15);function _toConsumableArray(arr) {return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();}function _nonIterableSpread() {throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");}function _unsupportedIterableToArray(o, minLen) {if (!o) return;if (typeof o === "string") return _arrayLikeToArray(o, minLen);var n = Object.prototype.toString.call(o).slice(8, -1);if (n === "Object" && o.constructor) n = o.constructor.name;if (n === "Map" || n === "Set") return Array.from(o);if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);}function _iterableToArray(iter) {if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);}function _arrayWithoutHoles(arr) {if (Array.isArray(arr)) return _arrayLikeToArray(arr);}function _arrayLikeToArray(arr, len) {if (len == null || len > arr.length) len = arr.length;for (var i = 0, arr2 = new Array(len); i < len; i++) {arr2[i] = arr[i];}return arr2;}
-
-var router = (0, _uniSimpleRouter.createRouter)({
-  platform: "mp-weixin",
-  routes: _toConsumableArray([{"path":"/pages/index/index","aliasPath":"/"},{"path":"/pages/news/news"},{"path":"/pages/msg/msg"},{"path":"/pages/my/my"},{"path":"/pages/demo/demo"},{"path":"/pages/add-input/add-input"},{"path":"/components/common/common-list"},{"path":"/pages/search/search"},{"path":"/pages/new-details/new-details"}]) });
-
-//全局路由前置守卫
-exports.router = router;router.beforeEach(function (to, from, next) {
-  next();
-});
-// 全局路由后置守卫
-router.afterEach(function (to, from) {
-  console.log('跳转结束');
-});
-
-/***/ }),
-
-/***/ 15:
-/*!****************************************************************************************************************************************!*\
-  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/node_modules/_uni-simple-router@2.0.5@uni-simple-router/dist/uni-simple-router.js ***!
-  \****************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(uni) {!function (e, t) { true ? module.exports = t() : undefined;}(self, function () {return e = { 779: function _(e, t, r) {var o = r(173);e.exports = function e(t, r, n) {return o(r) || (n = r || n, r = []), n = n || {}, t instanceof RegExp ? function (e, t) {var r = e.source.match(/\((?!\?)/g);if (r) for (var o = 0; o < r.length; o++) {t.push({ name: o, prefix: null, delimiter: null, optional: !1, repeat: !1, partial: !1, asterisk: !1, pattern: null });}return c(e, t);}(t, r) : o(t) ? function (t, r, o) {for (var n = [], a = 0; a < t.length; a++) {n.push(e(t[a], r, o).source);}return c(new RegExp("(?:" + n.join("|") + ")", s(o)), r);}(t, r, n) : function (e, t, r) {return f(a(e, r), t, r);}(t, r, n);}, e.exports.parse = a, e.exports.compile = function (e, t) {return u(a(e, t), t);}, e.exports.tokensToFunction = u, e.exports.tokensToRegExp = f;var n = new RegExp(["(\\\\.)", "([\\/.])?(?:(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?|(\\*))"].join("|"), "g");function a(e, t) {for (var r, o = [], a = 0, i = 0, u = "", c = t && t.delimiter || "/"; null != (r = n.exec(e));) {var s = r[0],f = r[1],h = r.index;if (u += e.slice(i, h), i = h + s.length, f) u += f[1];else {var y = e[i],v = r[2],g = r[3],d = r[4],m = r[5],b = r[6],O = r[7];u && (o.push(u), u = "");var P = null != v && null != y && y !== v,k = "+" === b || "*" === b,j = "?" === b || "*" === b,R = r[2] || c,w = d || m;o.push({ name: g || a++, prefix: v || "", delimiter: R, optional: j, repeat: k, partial: P, asterisk: !!O, pattern: w ? p(w) : O ? ".*" : "[^" + l(R) + "]+?" });}}return i < e.length && (u += e.substr(i)), u && o.push(u), o;}function i(e) {return encodeURI(e).replace(/[\/?#]/g, function (e) {return "%" + e.charCodeAt(0).toString(16).toUpperCase();});}function u(e, t) {for (var r = new Array(e.length), n = 0; n < e.length; n++) {"object" == typeof e[n] && (r[n] = new RegExp("^(?:" + e[n].pattern + ")$", s(t)));}return function (t, n) {for (var a = "", u = t || {}, l = (n || {}).pretty ? i : encodeURIComponent, p = 0; p < e.length; p++) {var c = e[p];if ("string" != typeof c) {var s,f = u[c.name];if (null == f) {if (c.optional) {c.partial && (a += c.prefix);continue;}throw new TypeError('Expected "' + c.name + '" to be defined');}if (o(f)) {if (!c.repeat) throw new TypeError('Expected "' + c.name + '" to not repeat, but received `' + JSON.stringify(f) + "`");if (0 === f.length) {if (c.optional) continue;throw new TypeError('Expected "' + c.name + '" to not be empty');}for (var h = 0; h < f.length; h++) {if (s = l(f[h]), !r[p].test(s)) throw new TypeError('Expected all "' + c.name + '" to match "' + c.pattern + '", but received `' + JSON.stringify(s) + "`");a += (0 === h ? c.prefix : c.delimiter) + s;}} else {if (s = c.asterisk ? encodeURI(f).replace(/[?#]/g, function (e) {return "%" + e.charCodeAt(0).toString(16).toUpperCase();}) : l(f), !r[p].test(s)) throw new TypeError('Expected "' + c.name + '" to match "' + c.pattern + '", but received "' + s + '"');a += c.prefix + s;}} else a += c;}return a;};}function l(e) {return e.replace(/([.+*?=^!:${}()[\]|\/\\])/g, "\\$1");}function p(e) {return e.replace(/([=!:$\/()])/g, "\\$1");}function c(e, t) {return e.keys = t, e;}function s(e) {return e && e.sensitive ? "" : "i";}function f(e, t, r) {o(t) || (r = t || r, t = []);for (var n = (r = r || {}).strict, a = !1 !== r.end, i = "", u = 0; u < e.length; u++) {var p = e[u];if ("string" == typeof p) i += l(p);else {var f = l(p.prefix),h = "(?:" + p.pattern + ")";t.push(p), p.repeat && (h += "(?:" + f + h + ")*"), i += h = p.optional ? p.partial ? f + "(" + h + ")?" : "(?:" + f + "(" + h + "))?" : f + "(" + h + ")";}}var y = l(r.delimiter || "/"),v = i.slice(-y.length) === y;return n || (i = (v ? i.slice(0, -y.length) : i) + "(?:" + y + "(?=$))?"), i += a ? "$" : n && v ? "" : "(?=" + y + "|$)", c(new RegExp("^" + i, s(r)), t);}}, 173: function _(e) {e.exports = Array.isArray || function (e) {return "[object Array]" == Object.prototype.toString.call(e);};}, 844: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.buildVueRouter = t.buildVueRoutes = void 0;var n = r(366),a = r(883),i = r(789),u = r(169);t.buildVueRoutes = function (e, t) {for (var r = e.routesMap, o = r.pathMap, l = r.finallyPathList, p = Object.keys(t), c = 0; c < p.length; c++) {var s = p[c],f = o[s],h = t[s];if (f) {var y = i.getRoutePath(f, e).finallyPath;if (y instanceof Array) throw new Error("非 vueRouterDev 模式下，alias、aliasPath、path 无法提供数组类型！ " + JSON.stringify(f));null != f.name && (h.name = f.name);var v = h.path,g = h.alias;delete h.alias, h.path = y, "/" === v && null != g && (h.alias = g, h.path = v), f.beforeEnter && (h.beforeEnter = function (t, r, o) {u.onTriggerEachHook(t, r, e, n.hookToggle.enterHooks, o);});} else a.warn(s + " 路由地址在路由表中未找到，确定是否传递漏啦", e, !0);}return l.includes("*") && (t["*"] = o["*"]), t;}, t.buildVueRouter = function (e, t, r) {var n;n = "[object Array]" === i.getDataType(r) ? r : Object.values(r);var a = e.options.h5,u = a.scrollBehavior,l = a.fallback,p = t.options.scrollBehavior;t.options.scrollBehavior = function (e, t, r) {return p && p(e, t, r), u(e, t, r);}, t.fallback = l;var c = new t.constructor(o(o({}, e.options.h5), { base: t.options.base, mode: t.options.mode, routes: n }));t.matcher = c.matcher;};}, 147: function _(e, t) {"use strict";var _r,o = this && this.__extends || (_r = function r(e, t) {return (_r = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (e, t) {e.__proto__ = t;} || function (e, t) {for (var r in t) {Object.prototype.hasOwnProperty.call(t, r) && (e[r] = t[r]);}})(e, t);}, function (e, t) {function o() {this.constructor = e;}_r(e, t), e.prototype = null === t ? Object.create(t) : (o.prototype = t.prototype, new o());});Object.defineProperty(t, "__esModule", { value: !0 }), t.proxyH5Mount = t.proxyEachHook = t.MyArray = void 0;var n = function (e) {function t(r, o, n, a) {var i = e.call(this) || this;return i.router = r, i.vueEachArray = o, i.myEachHook = n, i.hookName = a, Object.setPrototypeOf(i, t.prototype), i;}return o(t, e), t.prototype.push = function (e) {var t = this;this.vueEachArray.push(e);var r = this.length;this[this.length] = function (e, o, n) {r > 0 ? t.vueEachArray[r](e, o, function () {n && n();}) : t.myEachHook(e, o, function (a) {!1 === a ? n(!1) : t.vueEachArray[r](e, o, function (e) {n(a);});}, t.router, !0);};}, t;}(Array);t.MyArray = n, t.proxyEachHook = function (e, t) {for (var r = ["beforeHooks", "afterHooks"], o = 0; o < r.length; o++) {var a = r[o],i = e.lifeCycle[a][0];if (i) {var u = t[a];t[a] = new n(e, u, i, a);}}}, t.proxyH5Mount = function (e) {var t;if (0 === e.mount.length) {if (null === (t = e.options.h5) || void 0 === t ? void 0 : t.vueRouterDev) return;navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) && setTimeout(function () {if (document.getElementsByTagName("uni-page").length > 0) return !1;window.location.reload();}, 0);} else e.mount[0].app.$mount(), e.mount = [];};}, 814: function _(e, t) {"use strict";var r = this && this.__assign || function () {return (r = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.runtimeQuit = t.registerLoddingPage = void 0;var o = null;t.registerLoddingPage = function (e) {var t = e.options.APP,o = t.loddingPageHook,n = t.loddingPageStyle;o(new plus.nativeObj.View("router-loadding", r({ top: "0px", left: "0px", height: "100%", width: "100%" }, n())));}, t.runtimeQuit = function (e) {void 0 === e && (e = "再按一次退出应用");var t = +new Date();o ? t - o < 1e3 && plus.runtime.quit() : (o = t, uni.showToast({ title: e, icon: "none", position: "bottom", duration: 1e3 }), setTimeout(function () {o = null;}, 1e3));};}, 334: function _(e, t) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 }), t.getEnterPath = void 0, t.getEnterPath = function (e, t) {switch (t.options.platform) {case "mp-alipay":case "mp-weixin":case "mp-toutiao":case "mp-qq":return e.$options.mpInstance.route;case "mp-baidu":return e.$options.mpInstance.is || e.$options.mpInstance.pageinstance.route;}return e.$options.mpInstance.route;};}, 282: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);},n = this && this.__rest || function (e, t) {var r = {};for (var o in e) {Object.prototype.hasOwnProperty.call(e, o) && t.indexOf(o) < 0 && (r[o] = e[o]);}if (null != e && "function" == typeof Object.getOwnPropertySymbols) {var n = 0;for (o = Object.getOwnPropertySymbols(e); n < o.length; n++) {t.indexOf(o[n]) < 0 && Object.prototype.propertyIsEnumerable.call(e, o[n]) && (r[o[n]] = e[o[n]]);}}return r;};Object.defineProperty(t, "__esModule", { value: !0 }), t.notCallProxyHook = t.proxyVueSortHookName = t.indexProxyHook = t.appProxyHook = t.lifeCycle = t.baseConfig = t.keyword = t.mpPlatformReg = void 0;var a = r(883),i = r(789);t.mpPlatformReg = /(^mp-weixin$)|(^mp-baidu$)|(^mp-alipay$)|(^mp-toutiao$)|(^mp-qq$)|(^mp-360$)/g, t.keyword = ["query"], t.baseConfig = { h5: { paramsToQuery: !1, vueRouterDev: !1, vueNext: !1, mode: "hash", base: "/", linkActiveClass: "router-link-active", linkExactActiveClass: "router-link-exact-active", scrollBehavior: function scrollBehavior(e, t, r) {return { x: 0, y: 0 };}, fallback: !0 }, APP: { loddingPageStyle: function loddingPageStyle() {return JSON.parse('{"backgroundColor":"#FFF"}');}, loddingPageHook: function loddingPageHook(e) {e.show();}, launchedHook: function launchedHook() {plus.navigator.closeSplashscreen();}, animation: {} }, platform: "h5", keepUniOriginNav: !1, debugger: !1, routerBeforeEach: function routerBeforeEach(e, t, r) {r();}, routerAfterEach: function routerAfterEach(e, t) {}, routerErrorEach: function routerErrorEach(e, t) {t.$lockStatus = !1, a.err(e, t, !0);}, detectBeforeLock: function detectBeforeLock(e, t, r) {}, routes: [{ path: "/choose-location" }, { path: "/open-location" }, { path: "/preview-image" }] }, t.lifeCycle = { beforeHooks: [], afterHooks: [], routerBeforeHooks: [], routerAfterHooks: [], routerErrorHooks: [] }, t.appProxyHook = { app: { created: [], beforeMount: [], mounted: [], onLaunch: [], onShow: [], onHide: [], beforeDestroy: [], destroyed: [] } }, t.indexProxyHook = { app: t.appProxyHook.app, page: function (e) {e.onLaunch;var t = n(e, ["onLaunch"]);return o(o({}, t), { onLoad: [], onReady: [], onUnload: [], onResize: [] });}(i.copyData(t.appProxyHook.app)), component: [] }, t.proxyVueSortHookName = { app: ["created", "beforeMount", "mounted", "onLaunch", "onShow", "onHide", "beforeDestroy", "destroyed"], page: ["created", "beforeMount", "mounted", "onLoad", "onReady", "onShow", "onResize", "onHide", "beforeDestroy", "destroyed", "onUnload"], component: ["created", "beforeMount", "mounted", "beforeDestroy", "destroyed"] }, t.notCallProxyHook = ["onHide", "beforeDestroy", "destroyed", "destroyed", "onUnload", "onResize"];}, 801: function _(e, t, r) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 }), t.createRouteMap = void 0;var o = r(883),n = r(789);t.createRouteMap = function (e, t) {var r = { finallyPathList: [], finallyPathMap: Object.create(null), aliasPathMap: Object.create(null), pathMap: Object.create(null), vueRouteMap: Object.create(null), nameMap: Object.create(null) };return t.forEach(function (t) {var a = n.getRoutePath(t, e),i = a.finallyPath,u = a.aliasPath,l = a.path;if (null == l) throw new Error("请提供一个完整的路由对象，包括以绝对路径开始的 ‘path’ 字符串 " + JSON.stringify(t));if (i instanceof Array && !e.options.h5.vueRouterDev && "h5" === e.options.platform) throw new Error("非 vueRouterDev 模式下，route.alias 目前无法提供数组类型！ " + JSON.stringify(t));var p = i,c = u;"h5" !== e.options.platform && 0 !== p.indexOf("/") && "*" !== l && o.warn("当前路由对象下，route：" + JSON.stringify(t) + " 是否缺少了前缀 ‘/’", e, !0), r.finallyPathMap[p] || (r.finallyPathMap[p] = t, r.aliasPathMap[c] = t, r.pathMap[l] = t, r.finallyPathList.push(p), null != t.name && (r.nameMap[t.name] = t));}), r;};}, 662: function _(e, t, r) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 }), t.registerEachHooks = t.registerRouterHooks = t.registerHook = void 0;var o = r(366),n = r(169);function a(e, t) {e[0] = t;}t.registerHook = a, t.registerRouterHooks = function (e, t) {return a(e.routerBeforeHooks, function (e, r, o) {t.routerBeforeEach(e, r, o);}), a(e.routerAfterHooks, function (e, r) {t.routerAfterEach(e, r);}), a(e.routerErrorHooks, function (e, r) {t.routerErrorEach(e, r);}), e;}, t.registerEachHooks = function (e, t, r) {a(e.lifeCycle[t], function (e, a, i, u, l) {l ? n.onTriggerEachHook(e, a, u, o.hookToggle[t], i) : r(e, a, i);});};}, 460: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.initMixins = t.getMixins = void 0;var n = r(801),a = r(844),i = r(147),u = r(282),l = r(814),p = r(845),c = r(890),s = r(789),f = r(334),h = !1,y = !1,v = { app: !1, page: "" };function g(e, t) {var r = t.options.platform;return u.mpPlatformReg.test(r) && (r = "app-lets"), { h5: { beforeCreate: function beforeCreate() {var e;if (this.$options.router) {t.$route = this.$options.router;var r = [];(null === (e = t.options.h5) || void 0 === e ? void 0 : e.vueRouterDev) ? r = t.options.routes : (r = n.createRouteMap(t, this.$options.router.options.routes).finallyPathMap, t.routesMap.vueRouteMap = r, a.buildVueRoutes(t, r)), a.buildVueRouter(t, this.$options.router, r), i.proxyEachHook(t, this.$options.router);}} }, "app-plus": { beforeCreate: function beforeCreate() {h || (h = !0, p.proxyPageHook(this, t, "appProxyHook", "app"), l.registerLoddingPage(t));} }, "app-lets": { beforeCreate: function beforeCreate() {var e = this.$options.mpType;"component" !== e || y ? "component" !== e && (v[e] || ("page" === e ? (v[e] = f.getEnterPath(this, t), t.enterPath = v[e]) : v[e] = !0, p.proxyPageHook(this, t, "appletsProxyHook", e))) : s.assertParentChild(v.page, this) && p.proxyPageHook(this, t, "appletsProxyHook", e);}, onLoad: function onLoad() {!y && s.assertParentChild(v.page, this) && (y = !0, c.forceGuardEach(t));} } }[r];}t.getMixins = g, t.initMixins = function (e, t) {var r = n.createRouteMap(t, t.options.routes);t.routesMap = r, e.mixin(o({}, g(0, t)));};}, 789: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);},n = this && this.__rest || function (e, t) {var r = {};for (var o in e) {Object.prototype.hasOwnProperty.call(e, o) && t.indexOf(o) < 0 && (r[o] = e[o]);}if (null != e && "function" == typeof Object.getOwnPropertySymbols) {var n = 0;for (o = Object.getOwnPropertySymbols(e); n < o.length; n++) {t.indexOf(o[n]) < 0 && Object.prototype.propertyIsEnumerable.call(e, o[n]) && (r[o[n]] = e[o[n]]);}}return r;},a = this && this.__spreadArrays || function () {for (var e = 0, t = 0, r = arguments.length; t < r; t++) {e += arguments[t].length;}var o = Array(e),n = 0;for (t = 0; t < r; t++) {for (var a = arguments[t], i = 0, u = a.length; i < u; i++, n++) {o[n] = a[i];}}return o;};Object.defineProperty(t, "__esModule", { value: !0 }), t.resolveAbsolutePath = t.assertParentChild = t.reservedWord = t.resetPageHook = t.callHook = t.replaceHook = t.lockDetectWarn = t.deepClone = t.baseClone = t.assertDeepObject = t.paramsToQuery = t.forMatNextToFrom = t.urlToJson = t.getUniCachePage = t.copyData = t.getDataType = t.routesForMapRoute = t.assertNewOptions = t.getRoutePath = t.notDeepClearNull = t.mergeConfig = t.def = t.voidFun = void 0;var i = r(282),u = r(169),l = r(883),p = r(890),c = r(779);function s(e, t) {for (var r = Object.create(null), n = Object.keys(e).concat(["resolveQuery", "parseQuery"]), i = 0; i < n.length; i += 1) {var u = n[i];null != t[u] ? t[u].constructor === Object ? r[u] = o(o({}, e[u]), t[u]) : r[u] = "routes" === u ? a(e[u], t[u]) : t[u] : r[u] = e[u];}return r;}function f(e, t) {var r = e.aliasPath || e.alias || e.path;return "h5" !== t.options.platform && (r = e.path), { finallyPath: r, aliasPath: e.aliasPath || e.path, path: e.path, alias: e.alias };}function h(e) {return Object.prototype.toString.call(e);}function y(e) {return JSON.parse(JSON.stringify(e));}function v(e, t) {for (var r = 0, o = Object.keys(e); r < o.length; r++) {var n = o[r],a = n;e[n] !== e && ("object" == typeof e[n] ? (t[a] = "[object Array]" === h(e[n]) ? [] : {}, v(e[n], t[a])) : t[a] = e[n]);}}function g(e) {var t = "[object Array]" === h(e) ? [] : {};return v(e, t), t;}function d(e, t) {for (var r = [], o = 0, n = Object.entries(e); o < n.length; o++) {var a = n[o][1][0];a && a.hook && r.push(a.hook(t));}return r;}t.voidFun = function () {}, t.def = function (e, t, r) {Object.defineProperty(e, t, { get: function get() {return r();} });}, t.mergeConfig = s, t.notDeepClearNull = function (e) {for (var t in e) {null == e[t] && delete e[t];}return e;}, t.getRoutePath = f, t.assertNewOptions = function (e) {var t,r = e.platform,o = e.routes;if (null == r) throw new Error("你在实例化路由时必须传递 'platform'");if (null == o || 0 === o.length) throw new Error("你在实例化路由时必须传递 routes 为空，这是无意义的。");return "h5" === e.platform && (null === (t = e.h5) || void 0 === t ? void 0 : t.vueRouterDev) && (i.baseConfig.routes = []), s(i.baseConfig, e);}, t.routesForMapRoute = function (e, t, r) {var o;if (null === (o = e.options.h5) || void 0 === o ? void 0 : o.vueRouterDev) return { path: t };for (var n = t.split("?")[0], a = "", i = e.routesMap, u = 0; u < r.length; u++) {for (var l = i[r[u]], p = 0, s = Object.entries(l); p < s.length; p++) {var f = s[p],y = f[0],v = f[1];if ("*" !== y) {var g = v,d = y;if ("[object Array]" === h(l) && (d = g), null != c(d).exec(n)) return "[object String]" === h(g) ? i.finallyPathMap[g] : g;} else "" === a && (a = "*");}}if ("" !== a) return i.finallyPathMap[a];throw new Error(t + " 路径无法在路由表中找到！检查跳转路径及路由表");}, t.getDataType = h, t.copyData = y, t.getUniCachePage = function (e) {var t = getCurrentPages();if (null == e) return t;if (0 === t.length) return t;var r = t.reverse()[e];return null == r ? [] : r;}, t.urlToJson = function (e) {var t = {},r = e.split("?"),o = r[0],n = r[1];if (null != n) for (var a = 0, i = n.split("&"); a < i.length; a++) {var u = i[a].split("=");t[u[0]] = u[1];}return { path: o, query: t };}, t.forMatNextToFrom = function (e, t, r) {var o = [t, r],n = o[0],a = o[1];if ("h5" === e.options.platform) {var i = e.options.h5,u = i.vueNext,l = i.vueRouterDev;u || l || (n = p.createRoute(e, void 0, n), a = p.createRoute(e, void 0, a));} else n = p.createRoute(e, void 0, g(n)), a = p.createRoute(e, void 0, g(a));return { matTo: n, matFrom: a };}, t.paramsToQuery = function (e, t) {var r;if ("h5" === e.options.platform && !(null === (r = e.options.h5) || void 0 === r ? void 0 : r.paramsToQuery)) return t;if ("[object Object]" === h(t)) {var a = t,i = a.name,l = a.params,p = n(a, ["name", "params"]),c = l;if ("h5" !== e.options.platform && null == c && (c = {}), null != i && null != c) {var s = e.routesMap.nameMap[i];null == s && u.ERRORHOOK[0]({ type: 2, msg: "命名路由为：" + i + " 的路由，无法在路由表中找到！", toRule: t }, e);var y = f(s, e).finallyPath;if (!y.includes(":")) return o(o({}, p), { path: y, query: c });u.ERRORHOOK[0]({ type: 2, msg: "动态路由：" + y + " 无法使用 paramsToQuery！", toRule: t }, e);}}return t;}, t.assertDeepObject = function (e) {var t = null;try {t = JSON.stringify(e).match(/\{|\[|\}|\]/g);} catch (e) {l.warnLock("传递的参数解析对象失败。" + e);}return null != t && t.length > 3;}, t.baseClone = v, t.deepClone = g, t.lockDetectWarn = function (e, t, r, o, n) {if ("afterHooks" === n) o();else {var a = e.options.detectBeforeLock;a && a(e, t, r), e.$lockStatus ? e.options.routerErrorEach({ type: 2, msg: "当前页面正在处于跳转状态，请稍后再进行跳转...." }, e) : o();}}, t.replaceHook = function (e, t, r, o) {var n = t.$options,a = e[r][o],u = {};if ("[object Array]" === h(a) && (u = { beforeCreate: [], created: [], beforeMount: [], mounted: [], beforeDestroy: [], destroyed: [] }), null != a) {for (var l = i.proxyVueSortHookName[o], p = function p(r) {var p = l[r],c = n[p];if ("[object Array]" === h(c)) {var s = { options: [], hook: Function },f = c.splice(c.length - 1, 1, function () {for (var e = [], t = 0; t < arguments.length; t++) {e[t] = arguments[t];}return s.options = e;})[0];s.hook = function (r) {return e.enterPath.replace(/^\//, "") !== r.replace(/^\//, "") && "app" !== o ? function () {} : (i.notCallProxyHook.includes(p) || f.apply(t, s.options), function () {c.splice(c.length - 1, 1, f);});}, Object.keys(u).length > 0 ? u[p] = [s] : a[p] = [s];}}, c = 0; c < l.length; c++) {p(c);}Object.keys(u).length > 0 && a.push(u);}}, t.callHook = d, t.resetPageHook = function (e, t) {var r = t.trim().match(/^(\/?[^\?\s]+)(\?[\s\S]*$)?$/);if (null == r) throw new Error("还原hook失败。请检查 【" + t + "】 路径是否正确。");t = r[1];var o = "appletsProxyHook";"app-plus" === e.options.platform && (o = "appProxyHook");for (var n = [], a = 0, i = Object.entries(e[o]); a < i.length; a++) {var u = i[a][1];if ("[object Array]" === h(u)) for (var l = 0; l < u.length; l++) {n = n.concat(d(u[l], t));} else n = n.concat(d(u, t));}setTimeout(function () {for (var e = 0; e < n.length; e++) {n[e]();}}, 500);}, t.reservedWord = function (e) {if ("string" == typeof e) return e;for (var t = o(o({}, y(e.params || {})), y(e.query || {})), r = 0; r < i.keyword.length; r++) {var n = i.keyword[r];Reflect.has(t, n) && ("[object Object]" === h(e.query) && delete e.query[n], "[object Object]" === h(e.params) && delete e.params[n], l.warnLock(JSON.stringify(i.keyword) + " 作为插件的保留字，在参数传递中不允许使用。已自动被过滤掉！换个参数名试试吧！ "));}return e;}, t.assertParentChild = function (e, t) {for (; null != t.$parent;) {var r = t.$parent.$mp;if (r.page && r.page.is === e) return !0;t = t.$parent;}try {if (t.$mp.page.is === e || t.$mp.page.route === e) return !0;} catch (e) {return !1;}return !1;}, t.resolveAbsolutePath = function (e, t) {var r = /^\/?([^\?\s]+)(\?.+)?$/,o = e.trim();if (!r.test(o)) throw new Error("【" + e + "】 路径错误，请提供完整的路径(10001)。");var n = o.match(r);if (null == n) throw new Error("【" + e + "】 路径错误，请提供完整的路径(10002)。");var a = n[2] || "";if (/^\.\/[^\.]+/.test(o)) return (t.currentRoute.path + e).replace(/[^\/]+\.\//, "");var i = n[1].replace(/\//g, "\\/").replace(/\.\./g, "[^\\/]+").replace(/\./g, "\\."),u = new RegExp("^\\/" + i + "$"),l = t.options.routes.filter(function (e) {return u.test(e.path);});if (1 !== l.length) throw new Error("【" + e + "】 路径错误，尝试转成绝对路径失败，请手动转成绝对路径(10003)。");return l[0].path + a;};}, 883: function _(e, t) {"use strict";function r(e, t, r, o) {if (void 0 === o && (o = !1), !o) {var n = "[object Object]" === t.toString();if (!1 === t) return !1;if (n && !1 === t[e]) return !1;}return console[e](r), !0;}Object.defineProperty(t, "__esModule", { value: !0 }), t.warnLock = t.log = t.warn = t.err = t.isLog = void 0, t.isLog = r, t.err = function (e, t, o) {r("error", t.options.debugger, e, o);}, t.warn = function (e, t, o) {r("warn", t.options.debugger, e, o);}, t.log = function (e, t, o) {r("log", t.options.debugger, e, o);}, t.warnLock = function (e) {console.warn(e);};}, 607: function _(e, t, r) {"use strict";var o = this && this.__createBinding || (Object.create ? function (e, t, r, o) {void 0 === o && (o = r), Object.defineProperty(e, o, { enumerable: !0, get: function get() {return t[r];} });} : function (e, t, r, o) {void 0 === o && (o = r), e[o] = t[r];}),n = this && this.__exportStar || function (e, t) {for (var r in e) {"default" === r || Object.prototype.hasOwnProperty.call(t, r) || o(t, e, r);}};Object.defineProperty(t, "__esModule", { value: !0 }), t.createRouter = t.RouterMount = t.runtimeQuit = void 0, n(r(366), t), n(r(309), t);var a = r(814);Object.defineProperty(t, "runtimeQuit", { enumerable: !0, get: function get() {return a.runtimeQuit;} });var i = r(963);Object.defineProperty(t, "RouterMount", { enumerable: !0, get: function get() {return i.RouterMount;} }), Object.defineProperty(t, "createRouter", { enumerable: !0, get: function get() {return i.createRouter;} });}, 366: function _(e, t) {"use strict";var r, o, n;Object.defineProperty(t, "__esModule", { value: !0 }), t.rewriteMethodToggle = t.navtypeToggle = t.hookToggle = void 0, (n = t.hookToggle || (t.hookToggle = {})).beforeHooks = "beforeEach", n.afterHooks = "afterEach", n.enterHooks = "beforeEnter", (o = t.navtypeToggle || (t.navtypeToggle = {})).push = "navigateTo", o.replace = "redirectTo", o.replaceAll = "reLaunch", o.pushTab = "switchTab", o.back = "navigateBack", (r = t.rewriteMethodToggle || (t.rewriteMethodToggle = {})).navigateTo = "push", r.navigate = "push", r.redirectTo = "replace", r.reLaunch = "replaceAll", r.switchTab = "pushTab", r.navigateBack = "back";}, 309: function _(e, t) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 });}, 169: function _(e, t, r) {"use strict";var o = this && this.__rest || function (e, t) {var r = {};for (var o in e) {Object.prototype.hasOwnProperty.call(e, o) && t.indexOf(o) < 0 && (r[o] = e[o]);}if (null != e && "function" == typeof Object.getOwnPropertySymbols) {var n = 0;for (o = Object.getOwnPropertySymbols(e); n < o.length; n++) {t.indexOf(o[n]) < 0 && Object.prototype.propertyIsEnumerable.call(e, o[n]) && (r[o[n]] = e[o[n]]);}}return r;};Object.defineProperty(t, "__esModule", { value: !0 }), t.loopCallHook = t.transitionTo = t.onTriggerEachHook = t.callHook = t.callBeforeRouteLeave = t.HOOKLIST = t.ERRORHOOK = void 0;var n = r(789),a = r(890),i = r(147);function u(e, t, r, o) {var a,i = n.getUniCachePage(0);if (Object.keys(i).length > 0) {var u = void 0;switch ("h5" === e.options.platform ? u = i.$options.beforeRouteLeave : null != i.$vm && (u = i.$vm.$options.beforeRouteLeave), n.getDataType(u)) {case "[object Array]":a = (a = u[0]).bind(i);break;case "[object Function]":a = u.bind(i.$vm);}}return l(a, t, r, e, o);}function l(e, t, r, o, n, a) {void 0 === a && (a = !0), null != e && e instanceof Function ? !0 === a ? e(t, r, n, o, !1) : (e(t, r, function () {}, o, !1), n()) : n();}function p(e, t, r, o, a, i) {var u = n.forMatNextToFrom(e, t, r),l = u.matTo,p = u.matFrom;"h5" === e.options.platform ? c(a, 0, i, e, l, p, o) : c(a.slice(0, 4), 0, function () {i(function () {c(a.slice(4), 0, n.voidFun, e, l, p, o);});}, e, l, p, o);}function c(e, r, i, u, l, p, s) {var f = n.routesForMapRoute(u, l.path, ["finallyPathMap", "pathMap"]);if (e.length - 1 < r) return i();var h = e[r],y = t.ERRORHOOK[0];h(u, l, p, f, function (t) {if (!1 === t) "h5" === u.options.platform && i(!1), y({ type: 0, msg: "管道函数传递 false 导航被终止!", matTo: l, matFrom: p, nextTo: t }, u);else if ("string" == typeof t || "object" == typeof t) {var n = s,f = t;if ("object" == typeof t) {var h = t.NAVTYPE;f = o(t, ["NAVTYPE"]), null != h && (n = h);}a.navjump(f, u, n, { from: p, next: i });} else null == t ? (r++, c(e, r, i, u, l, p, s)) : y({ type: 1, msg: "管道函数传递未知类型，无法被识别。导航被终止！", matTo: l, matFrom: p, nextTo: t }, u);});}t.ERRORHOOK = [function (e, t) {return t.lifeCycle.routerErrorHooks[0](e, t);}], t.HOOKLIST = [function (e, t, r, o, n) {return l(e.lifeCycle.routerBeforeHooks[0], t, r, e, n);}, function (e, t, r, o, n) {return u(e, t, r, n);}, function (e, t, r, o, n) {return l(e.lifeCycle.beforeHooks[0], t, r, e, n);}, function (e, t, r, o, n) {return l(o.beforeEnter, t, r, e, n);}, function (e, t, r, o, n) {return l(e.lifeCycle.afterHooks[0], t, r, e, n, !1);}, function (e, t, r, o, n) {return e.$lockStatus = !1, "h5" === e.options.platform && i.proxyH5Mount(e), l(e.lifeCycle.routerAfterHooks[0], t, r, e, n, !1);}], t.callBeforeRouteLeave = u, t.callHook = l, t.onTriggerEachHook = function (e, r, o, n, a) {var i = [];switch (n) {case "beforeEach":i = t.HOOKLIST.slice(0, 3);break;case "afterEach":i = t.HOOKLIST.slice(4);break;case "beforeEnter":i = t.HOOKLIST.slice(3, 4);}p(o, e, r, "push", i, a);}, t.transitionTo = p, t.loopCallHook = c;}, 890: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.createRoute = t.forceGuardEach = t.backOptionsBuild = t.navjump = t.lockNavjump = void 0;var n = r(366),a = r(99),i = r(789),u = r(169),l = r(845),p = r(169);function c(e, t, r, o, n) {i.lockDetectWarn(t, e, r, function () {"h5" !== t.options.platform && (t.$lockStatus = !0), s(e, t, r, void 0, o, n);});}function s(e, t, r, c, s, h) {if ("back" === r) {var y;if (y = "string" == typeof e ? +e : e.delta || 1, "h5" === t.options.platform) return void t.$route.go(-y);e = f(t, y, h);}e = i.reservedWord(e);var v = a.queryPageToMap(e, t).rule;v.type = n.navtypeToggle[r];var g = i.paramsToQuery(t, v),d = a.resolveQuery(g, t);if ("h5" === t.options.platform) {if ("push" !== r && (r = "replace"), null != c) c.next(o({ replace: "push" !== r }, d));else if ("push" === r && Reflect.has(d, "events")) {if (Reflect.has(d, "name")) throw new Error("在h5端上使用 'push'、'navigateTo' 跳转时，如果包含 events 不允许使用 name 跳转，因为 name 实现了动态路由。请更换为 path 或者 url 跳转！");uni.navigateTo(d, !0, i.voidFun, s);} else t.$route[r](d, d.success || i.voidFun, d.fail || i.voidFun);} else {var m = { path: "" };if (null == c) {var b = i.routesForMapRoute(t, d.path, ["finallyPathMap", "pathMap"]);d = o(o(o({}, b), { params: {} }), d), m = l.createToFrom(d, t);} else m = c.from;l.createFullPath(d, m), u.transitionTo(t, d, m, r, p.HOOKLIST, function (e) {uni[n.navtypeToggle[r]](d, !0, e, s);});}}function f(e, t, r) {var o = h(e, t),n = { path: o.path, query: o.query, delta: t };if ("[object Object]" === i.getDataType(r)) {var a = r,u = a.animationDuration,l = a.animationType;null != u && (n.animationDuration = u), null != l && (n.animationType = l);var p = r.from;null != p && (n.BACKTYPE = p);}return n;}function h(e, t, r) {void 0 === t && (t = 0);var u = { name: "", meta: {}, path: "", fullPath: "", NAVTYPE: "", query: {}, params: {}, BACKTYPE: (r || { BACKTYPE: "" }).BACKTYPE || "" };if (19970806 === t) return u;if ("h5" === e.options.platform) {var l = { path: "" };l = null != r ? r : e.$route.currentRoute;var p = i.copyData(l.params);delete p.__id__;var c = a.parseQuery(o(o({}, p), i.copyData(l.query)), e);l = o(o({}, l), { query: c }), u.path = l.path, u.fullPath = l.fullPath || "", u.query = l.query || {}, u.NAVTYPE = n.rewriteMethodToggle[l.type || "reLaunch"];} else {var s = {};if (null != r) s = o(o({}, r), { openType: r.type });else {var f = i.getUniCachePage(t);if (0 === Object.keys(f).length) throw e.options.routerErrorEach({ type: 3, msg: "不存在的页面栈，请确保有足够的页面可用，当前 level:" + t }, e), new Error("不存在的页面栈，请确保有足够的页面可用，当前 level:" + t);var h = f.options,y = h.query;null != y && 1 === Object.keys(h).length && (h = JSON.parse(decodeURIComponent(y)));var v = JSON.parse(decodeURIComponent(JSON.stringify(h)));s = o(o({}, f.$page), { query: v, fullPath: decodeURIComponent(f.$page.fullPath) }), "app-plus" !== e.options.platform && (s.path = "/" + f.route);}var g = s.openType;u.query = s.query, u.path = s.path, u.fullPath = s.fullPath, u.NAVTYPE = n.rewriteMethodToggle[g || "reLaunch"];}var d = i.routesForMapRoute(e, u.path, ["finallyPathMap", "pathMap"]),m = o(o({}, u), d);return m.query = a.parseQuery(m.query, e), m;}t.lockNavjump = c, t.navjump = s, t.backOptionsBuild = f, t.forceGuardEach = function (e, t, r) {if (void 0 === t && (t = "replaceAll"), void 0 === r && (r = !1), "h5" === e.options.platform) throw new Error("在h5端上使用：forceGuardEach 是无意义的，目前 forceGuardEach 仅支持在非h5端上使用");var o = i.getUniCachePage(0);0 === Object.keys(o).length && e.options.routerErrorEach({ type: 3, msg: "不存在的页面栈，请确保有足够的页面可用，当前 level:0" }, e);var n = o;c({ path: "/" + n.route, query: n.options }, e, t, r);}, t.createRoute = h;}, 845: function _(e, t, r) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 }), t.proxyPageHook = t.createFullPath = t.createToFrom = void 0;var o = r(789),n = r(890),a = r(99);t.createToFrom = function (e, t) {var r = o.getUniCachePage(0);return "[object Array]" === o.getDataType(r) ? o.deepClone(e) : n.createRoute(t);}, t.createFullPath = function (e, t) {if (null == e.fullPath) {var r = a.stringifyQuery(e.query);e.fullPath = e.path + r;}null == t.fullPath && (r = a.stringifyQuery(t.query), t.fullPath = t.path + r);}, t.proxyPageHook = function (e, t, r, n) {o.replaceHook(t, e, r, n);};}, 99: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.stringifyQuery = t.parseQuery = t.resolveQuery = t.queryPageToMap = void 0;var n = r(789),a = r(169),i = r(883),u = /[!'()*]/g,l = function l(e) {return "%" + e.charCodeAt(0).toString(16);},p = /%2C/g,c = function c(e) {return encodeURIComponent(e).replace(u, l).replace(p, ",");};t.queryPageToMap = function (e, t) {var r = {},i = "",u = e.success,l = e.fail;if ("[object Object]" === n.getDataType(e)) {var p = e;if (null != p.path) {var c = n.urlToJson(p.path),s = c.path,f = c.query;i = n.routesForMapRoute(t, s, ["finallyPathList", "pathMap"]), r = o(o({}, f), e.query || {}), p.path = s, p.query = r, delete e.params;} else null != p.name ? null == (i = t.routesMap.nameMap[p.name]) ? a.ERRORHOOK[0]({ type: 2, msg: "命名路由为：" + p.name + " 的路由，无法在路由表中找到！", toRule: e }, t) : (r = e.params || {}, delete e.query) : a.ERRORHOOK[0]({ type: 2, msg: e + " 解析失败，请检测当前路由表下是否有包含。", toRule: e }, t);} else e = n.urlToJson(e), i = n.routesForMapRoute(t, e.path, ["finallyPathList", "pathMap"]), r = e.query;if ("h5" === t.options.platform) {n.getRoutePath(i, t).finallyPath.includes(":") && null == e.name && a.ERRORHOOK[0]({ type: 2, msg: "当有设置 alias或者aliasPath 为动态路由时，不允许使用 path 跳转。请使用 name 跳转！", route: i }, t);var h = e.complete,y = e.success,v = e.fail;if ("[object Function]" === n.getDataType(h)) {var g = function g(e, t) {"[object Function]" === n.getDataType(t) && t.apply(this, e), h.apply(this, e);};u = function u() {for (var e = [], t = 0; t < arguments.length; t++) {e[t] = arguments[t];}g.call(this, e, y);}, l = function l() {for (var e = [], t = 0; t < arguments.length; t++) {e[t] = arguments[t];}g.call(this, e, v);};}}var d = e;return "[object Function]" === n.getDataType(d.success) && (d.success = u), "[object Function]" === n.getDataType(d.fail) && (d.fail = l), { rule: d, route: i, query: r };}, t.resolveQuery = function (e, t) {var r = "query";null != e.params && (r = "params"), null != e.query && (r = "query");var o = n.copyData(e[r] || {}),a = t.options.resolveQuery;if (a) {var u = a(o);"[object Object]" !== n.getDataType(u) ? i.warn("请按格式返回参数： resolveQuery?:(jsonQuery:{[propName: string]: any;})=>{[propName: string]: any;}", t) : e[r] = u;} else {if (!n.assertDeepObject(o)) return e;var l = JSON.stringify(o);e[r] = { query: l };}return e;}, t.parseQuery = function (e, t) {var r = t.options.parseQuery;if (r) e = r(n.copyData(e)), "[object Object]" !== n.getDataType(e) && i.warn("请按格式返回参数： parseQuery?:(jsonQuery:{[propName: string]: any;})=>{[propName: string]: any;}", t);else if (Reflect.get(e, "query")) {var o = Reflect.get(e, "query"),a = { query: decodeURIComponent(o) };try {if ("object" == typeof (a = JSON.parse(a.query))) return a;} catch (e) {i.warn("尝试解析深度对象失败，按原样输出。" + e, t);}}return e;}, t.stringifyQuery = function (e) {var t = e ? Object.keys(e).map(function (t) {var r = e[t];if (void 0 === r) return "";if (null === r) return c(t);if (Array.isArray(r)) {var o = [];return r.forEach(function (e) {void 0 !== e && (null === e ? o.push(c(t)) : o.push(c(t) + "=" + c(e)));}), o.join("&");}return c(t) + "=" + c(r);}).filter(function (e) {return e.length > 0;}).join("&") : null;return t ? "?" + t : "";};}, 314: function _(e, t, r) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 }), t.rewriteMethod = void 0;var o = r(366),n = r(789),a = r(883),i = r(809),u = ["navigateTo", "redirectTo", "reLaunch", "switchTab", "navigateBack"];t.rewriteMethod = function (e) {!1 === e.options.keepUniOriginNav && u.forEach(function (t) {var r = uni[t];uni[t] = function (u, l, p, c) {void 0 === l && (l = !1), l ? i.uniOriginJump(e, r, t, u, p, c) : ("app-plus" === e.options.platform && 0 === Object.keys(e.appMain).length && (e.appMain = { NAVTYPE: t, path: u.url }), function (e, t, r) {if ("app-plus" === r.options.platform) {var i = null;e && (i = e.openType), null != i && "appLaunch" === i && (t = "reLaunch");}if ("reLaunch" === t && '{"url":"/"}' === JSON.stringify(e) && (a.warn("uni-app 原生方法：reLaunch({url:'/'}) 默认被重写啦！你可以使用 this.$Router.replaceAll() 或者 uni.reLaunch({url:'/?xxx=xxx'})", r, !0), t = "navigateBack", e = { from: "backbutton" }), "navigateBack" === t) {var u = 1;null == e && (e = { delta: 1 }), "[object Number]" === n.getDataType(e.delta) && (u = e.delta), r.back(u, e);} else {var l = o.rewriteMethodToggle[t],p = e.url;if (!p.startsWith("/")) {var c = n.resolveAbsolutePath(p, r);p = c, e.url = c;}if ("switchTab" === t) {var s = n.routesForMapRoute(r, p, ["pathMap", "finallyPathList"]),f = n.getRoutePath(s, r).finallyPath;"[object Array]" === n.getDataType(f) && a.warn("uni-app 原生方法跳转路径为：" + p + "。此路为是tab页面时，不允许设置 alias 为数组的情况，并且不能为动态路由！当然你可以通过通配符*解决！", r, !0), "*" === f && a.warn("uni-app 原生方法跳转路径为：" + p + "。在路由表中找不到相关路由表！当然你可以通过通配符*解决！", r, !0), p = f;}var h = e,y = h.events,v = h.success,g = h.fail,d = h.complete,m = h.animationType,b = { path: p, events: y, success: v, fail: g, complete: d, animationDuration: h.animationDuration, animationType: m };r[l](n.notDeepClearNull(b));}}(u, t, e));};});};}, 963: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.createRouter = t.RouterMount = void 0;var n = r(282),a = r(789),i = r(662),u = r(460),l = r(890),p = r(314),c = function c() {},s = new Promise(function (e) {return c = e;});t.createRouter = function (e) {var t = a.assertNewOptions(e),r = { options: t, mount: [], Vue: null, appProxyHook: n.appProxyHook, appletsProxyHook: n.indexProxyHook, appMain: {}, enterPath: "", $route: null, $lockStatus: !1, routesMap: {}, lifeCycle: i.registerRouterHooks(n.lifeCycle, t), push: function push(e) {l.lockNavjump(e, r, "push");}, replace: function replace(e) {l.lockNavjump(e, r, "replace");}, replaceAll: function replaceAll(e) {l.lockNavjump(e, r, "replaceAll");}, pushTab: function pushTab(e) {l.lockNavjump(e, r, "pushTab");}, back: function back(e, t) {void 0 === e && (e = 1), "[object Object]" !== a.getDataType(t) ? t = { from: "navigateBack" } : Reflect.has(t, "from") || (t = o(o({}, t), { from: "navigateBack" })), l.lockNavjump(e + "", r, "back", void 0, t);}, forceGuardEach: function forceGuardEach(e, t) {l.forceGuardEach(r, e, t);}, beforeEach: function beforeEach(e) {i.registerEachHooks(r, "beforeHooks", e);}, afterEach: function afterEach(e) {i.registerEachHooks(r, "afterHooks", e);}, install: function install(e) {r.Vue = e, p.rewriteMethod(this), u.initMixins(e, this), Object.defineProperty(e.prototype, "$Router", { get: function get() {return r;} }), Object.defineProperty(e.prototype, "$Route", { get: function get() {return l.createRoute(r);} }), Object.defineProperty(e.prototype, "$AppReady", { get: function get() {return "h5" === r.options.platform ? Promise.resolve() : s;}, set: function set(e) {!0 === e && c();} });} };return a.def(r, "keyword", function () {return n.keyword;}), a.def(r, "currentRoute", function () {return l.createRoute(r);}), r.beforeEach(function (e, t, r) {return r();}), r.afterEach(function () {}), r;}, t.RouterMount = function (e, t, r) {if (void 0 === r && (r = "#app"), "[object Array]" !== a.getDataType(t.mount)) throw new Error("挂载路由失败，router.app 应该为数组类型。当前类型：" + typeof t.mount);if (t.mount.push({ app: e, el: r }), "h5" === t.options.platform) {var o = t.$route;o.replace({ path: o.currentRoute.fullPath });}};}, 809: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);},n = this && this.__rest || function (e, t) {var r = {};for (var o in e) {Object.prototype.hasOwnProperty.call(e, o) && t.indexOf(o) < 0 && (r[o] = e[o]);}if (null != e && "function" == typeof Object.getOwnPropertySymbols) {var n = 0;for (o = Object.getOwnPropertySymbols(e); n < o.length; n++) {t.indexOf(o[n]) < 0 && Object.prototype.propertyIsEnumerable.call(e, o[n]) && (r[o[n]] = e[o[n]]);}}return r;};Object.defineProperty(t, "__esModule", { value: !0 }), t.formatOriginURLQuery = t.uniOriginJump = void 0;var a = r(99),i = r(789),u = 0;function l(e, t, r) {var n,u = t.url,l = t.path,p = t.query,c = t.animationType,s = t.animationDuration,f = t.events,h = t.success,y = t.fail,v = t.complete,g = t.delta,d = t.animation,m = a.stringifyQuery(p || {}),b = "" === m ? l || u : (l || u) + m,O = {};return "app-plus" === e.options.platform && "navigateBack" !== r && (O = (null === (n = e.options.APP) || void 0 === n ? void 0 : n.animation) || {}, O = o(o({}, O), d || {})), i.notDeepClearNull({ delta: g, url: b, animationType: c || O.animationType, animationDuration: s || O.animationDuration, events: f, success: h, fail: y, complete: v });}t.uniOriginJump = function (e, t, r, a, p, c) {var s = l(e, a, r),f = s.complete,h = n(s, ["complete"]);0 === u && "h5" !== e.options.platform && i.resetPageHook(e, h.url), null != c && !1 === c ? (0 === u && (u++, "h5" !== e.options.platform && (e.Vue.prototype.$AppReady = !0)), f && f.apply(null, { msg: "forceGuardEach强制触发并且不执行跳转" }), p && p.apply(null, { msg: "forceGuardEach强制触发并且不执行跳转" })) : "navigateBack" === r ? (t(o(o({}, h), { from: a.BACKTYPE })), p && p.apply(null)) : t(o(o({}, h), { complete: function complete() {for (var t, r = [], o = 0; o < arguments.length; o++) {r[o] = arguments[o];}if (0 === u && (u++, "h5" !== e.options.platform && (e.Vue.prototype.$AppReady = !0), "app-plus" === e.options.platform)) {var n = plus.nativeObj.View.getViewById("router-loadding");n && n.close();var a = null === (t = e.options.APP) || void 0 === t ? void 0 : t.launchedHook;a && a();}f && f.apply(null, r), p && p.apply(null, r);} }));}, t.formatOriginURLQuery = l;} }, t = {}, function r(o) {if (t[o]) return t[o].exports;var n = t[o] = { exports: {} };return e[o].call(n.exports, n, n.exports, r), n.exports;}(607);var e, t;});
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
-
-/***/ }),
-
-/***/ 16:
+/***/ 19:
 /*!****************************************************************************!*\
-  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/store/types.js ***!
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/store/index.js ***!
   \****************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.MESSAGE_IDS = exports.FORCE_OAUTH = exports.LOGIN_TIP = exports.CART_NUM = exports.CART_LIST = exports.OUT_LOGIN = exports.ORDER_NUMBER = exports.AGENT_INFO = exports.USER_INFO = exports.TEMPLATE_DATA = exports.PAGE_ROUTES = exports.INIT_DATA = void 0;var INIT_DATA = 'INIT_DATA'; //初始化数据
-exports.INIT_DATA = INIT_DATA;var PAGE_ROUTES = 'PAGE_ROUTES'; //路由表
-exports.PAGE_ROUTES = PAGE_ROUTES;var TEMPLATE_DATA = 'TEMPLATE_DATA'; //模板信息
-exports.TEMPLATE_DATA = TEMPLATE_DATA;var USER_INFO = 'USER_INFO'; //用户信息
-exports.USER_INFO = USER_INFO;var AGENT_INFO = 'AGENT_INFO'; //分销商
-exports.AGENT_INFO = AGENT_INFO;var ORDER_NUMBER = 'ORDER_NUMBER'; //订单数量
-exports.ORDER_NUMBER = ORDER_NUMBER;var OUT_LOGIN = 'OUT_LOGIN'; //退出登录
-exports.OUT_LOGIN = OUT_LOGIN;var CART_LIST = 'CART_LIST'; //购物车商品
-exports.CART_LIST = CART_LIST;var CART_NUM = 'CART_NUM'; //购物车商品数
-exports.CART_NUM = CART_NUM;var LOGIN_TIP = 'LOGIN_TIP'; //登录提示
-exports.LOGIN_TIP = LOGIN_TIP;
-var FORCE_OAUTH = 'FORCE_OAUTH'; // 小程序强制登录弹窗
-exports.FORCE_OAUTH = FORCE_OAUTH;
-var MESSAGE_IDS = 'MESSAGE_IDS'; // 小程序订阅消息模板ids
-exports.MESSAGE_IDS = MESSAGE_IDS;
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));
+var _vuex = _interopRequireDefault(__webpack_require__(/*! vuex */ 8));
+
+
+
+var _init = _interopRequireDefault(__webpack_require__(/*! ./modules/init.js */ 101));
+var _user = _interopRequireDefault(__webpack_require__(/*! ./modules/user.js */ 20));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}_vue.default.use(_vuex.default);
+//import cart from './moduls/cart.js'
+
+var store = new _vuex.default.Store({
+  modules: {
+    init: _init.default,
+    user: _user.default
+    // cart
+  } });var _default =
+
+
+store;exports.default = _default;
 
 /***/ }),
 
@@ -9923,6 +9825,172 @@ internalMixin(Vue);
 /* harmony default export */ __webpack_exports__["default"] = (Vue);
 
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../../../webpack/buildin/global.js */ 3)))
+
+/***/ }),
+
+/***/ 20:
+/*!***********************************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/store/modules/user.js ***!
+  \***********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
+
+var _store = _interopRequireDefault(__webpack_require__(/*! @/common/store */ 19));
+var _router = _interopRequireDefault(__webpack_require__(/*! ../../../router.js */ 21));
+
+
+var _types = __webpack_require__(/*! ../types.js */ 23);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };} // 用户数据模块
+//import api from '@/common/request/index'
+//import tools from '@/common/utils/tools'
+
+
+
+
+
+
+
+
+var state = {};
+
+
+
+var actions = {};
+
+
+
+var mutations = {};
+
+
+
+var getters = {};var _default =
+
+
+
+{
+  state: state,
+  mutations: mutations,
+  actions: actions,
+  getters: getters };exports.default = _default;
+
+/***/ }),
+
+/***/ 21:
+/*!****************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/router.js ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });Object.defineProperty(exports, "RouterMount", { enumerable: true, get: function get() {return _uniSimpleRouter.RouterMount;} });exports.router = void 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var _uniSimpleRouter = __webpack_require__(/*! uni-simple-router */ 22);function _toConsumableArray(arr) {return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();}function _nonIterableSpread() {throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");}function _unsupportedIterableToArray(o, minLen) {if (!o) return;if (typeof o === "string") return _arrayLikeToArray(o, minLen);var n = Object.prototype.toString.call(o).slice(8, -1);if (n === "Object" && o.constructor) n = o.constructor.name;if (n === "Map" || n === "Set") return Array.from(o);if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);}function _iterableToArray(iter) {if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);}function _arrayWithoutHoles(arr) {if (Array.isArray(arr)) return _arrayLikeToArray(arr);}function _arrayLikeToArray(arr, len) {if (len == null || len > arr.length) len = arr.length;for (var i = 0, arr2 = new Array(len); i < len; i++) {arr2[i] = arr[i];}return arr2;}
+
+var router = (0, _uniSimpleRouter.createRouter)({
+  platform: "mp-weixin",
+  routes: _toConsumableArray([{"path":"/pages/index/index","aliasPath":"/"},{"path":"/pages/news/news"},{"path":"/pages/msg/msg"},{"path":"/pages/my/my"},{"path":"/pages/demo/demo"},{"path":"/pages/add-input/add-input"},{"path":"/components/common/common-list"},{"path":"/pages/search/search"},{"path":"/pages/new-details/new-details"}]) });
+
+//全局路由前置守卫
+exports.router = router;router.beforeEach(function (to, from, next) {
+  next();
+});
+// 全局路由后置守卫
+router.afterEach(function (to, from) {
+  console.log('跳转结束');
+});
+
+/***/ }),
+
+/***/ 22:
+/*!****************************************************************************************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/node_modules/_uni-simple-router@2.0.5@uni-simple-router/dist/uni-simple-router.js ***!
+  \****************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(uni) {!function (e, t) { true ? module.exports = t() : undefined;}(self, function () {return e = { 779: function _(e, t, r) {var o = r(173);e.exports = function e(t, r, n) {return o(r) || (n = r || n, r = []), n = n || {}, t instanceof RegExp ? function (e, t) {var r = e.source.match(/\((?!\?)/g);if (r) for (var o = 0; o < r.length; o++) {t.push({ name: o, prefix: null, delimiter: null, optional: !1, repeat: !1, partial: !1, asterisk: !1, pattern: null });}return c(e, t);}(t, r) : o(t) ? function (t, r, o) {for (var n = [], a = 0; a < t.length; a++) {n.push(e(t[a], r, o).source);}return c(new RegExp("(?:" + n.join("|") + ")", s(o)), r);}(t, r, n) : function (e, t, r) {return f(a(e, r), t, r);}(t, r, n);}, e.exports.parse = a, e.exports.compile = function (e, t) {return u(a(e, t), t);}, e.exports.tokensToFunction = u, e.exports.tokensToRegExp = f;var n = new RegExp(["(\\\\.)", "([\\/.])?(?:(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?|(\\*))"].join("|"), "g");function a(e, t) {for (var r, o = [], a = 0, i = 0, u = "", c = t && t.delimiter || "/"; null != (r = n.exec(e));) {var s = r[0],f = r[1],h = r.index;if (u += e.slice(i, h), i = h + s.length, f) u += f[1];else {var y = e[i],v = r[2],g = r[3],d = r[4],m = r[5],b = r[6],O = r[7];u && (o.push(u), u = "");var P = null != v && null != y && y !== v,k = "+" === b || "*" === b,j = "?" === b || "*" === b,R = r[2] || c,w = d || m;o.push({ name: g || a++, prefix: v || "", delimiter: R, optional: j, repeat: k, partial: P, asterisk: !!O, pattern: w ? p(w) : O ? ".*" : "[^" + l(R) + "]+?" });}}return i < e.length && (u += e.substr(i)), u && o.push(u), o;}function i(e) {return encodeURI(e).replace(/[\/?#]/g, function (e) {return "%" + e.charCodeAt(0).toString(16).toUpperCase();});}function u(e, t) {for (var r = new Array(e.length), n = 0; n < e.length; n++) {"object" == typeof e[n] && (r[n] = new RegExp("^(?:" + e[n].pattern + ")$", s(t)));}return function (t, n) {for (var a = "", u = t || {}, l = (n || {}).pretty ? i : encodeURIComponent, p = 0; p < e.length; p++) {var c = e[p];if ("string" != typeof c) {var s,f = u[c.name];if (null == f) {if (c.optional) {c.partial && (a += c.prefix);continue;}throw new TypeError('Expected "' + c.name + '" to be defined');}if (o(f)) {if (!c.repeat) throw new TypeError('Expected "' + c.name + '" to not repeat, but received `' + JSON.stringify(f) + "`");if (0 === f.length) {if (c.optional) continue;throw new TypeError('Expected "' + c.name + '" to not be empty');}for (var h = 0; h < f.length; h++) {if (s = l(f[h]), !r[p].test(s)) throw new TypeError('Expected all "' + c.name + '" to match "' + c.pattern + '", but received `' + JSON.stringify(s) + "`");a += (0 === h ? c.prefix : c.delimiter) + s;}} else {if (s = c.asterisk ? encodeURI(f).replace(/[?#]/g, function (e) {return "%" + e.charCodeAt(0).toString(16).toUpperCase();}) : l(f), !r[p].test(s)) throw new TypeError('Expected "' + c.name + '" to match "' + c.pattern + '", but received "' + s + '"');a += c.prefix + s;}} else a += c;}return a;};}function l(e) {return e.replace(/([.+*?=^!:${}()[\]|\/\\])/g, "\\$1");}function p(e) {return e.replace(/([=!:$\/()])/g, "\\$1");}function c(e, t) {return e.keys = t, e;}function s(e) {return e && e.sensitive ? "" : "i";}function f(e, t, r) {o(t) || (r = t || r, t = []);for (var n = (r = r || {}).strict, a = !1 !== r.end, i = "", u = 0; u < e.length; u++) {var p = e[u];if ("string" == typeof p) i += l(p);else {var f = l(p.prefix),h = "(?:" + p.pattern + ")";t.push(p), p.repeat && (h += "(?:" + f + h + ")*"), i += h = p.optional ? p.partial ? f + "(" + h + ")?" : "(?:" + f + "(" + h + "))?" : f + "(" + h + ")";}}var y = l(r.delimiter || "/"),v = i.slice(-y.length) === y;return n || (i = (v ? i.slice(0, -y.length) : i) + "(?:" + y + "(?=$))?"), i += a ? "$" : n && v ? "" : "(?=" + y + "|$)", c(new RegExp("^" + i, s(r)), t);}}, 173: function _(e) {e.exports = Array.isArray || function (e) {return "[object Array]" == Object.prototype.toString.call(e);};}, 844: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.buildVueRouter = t.buildVueRoutes = void 0;var n = r(366),a = r(883),i = r(789),u = r(169);t.buildVueRoutes = function (e, t) {for (var r = e.routesMap, o = r.pathMap, l = r.finallyPathList, p = Object.keys(t), c = 0; c < p.length; c++) {var s = p[c],f = o[s],h = t[s];if (f) {var y = i.getRoutePath(f, e).finallyPath;if (y instanceof Array) throw new Error("非 vueRouterDev 模式下，alias、aliasPath、path 无法提供数组类型！ " + JSON.stringify(f));null != f.name && (h.name = f.name);var v = h.path,g = h.alias;delete h.alias, h.path = y, "/" === v && null != g && (h.alias = g, h.path = v), f.beforeEnter && (h.beforeEnter = function (t, r, o) {u.onTriggerEachHook(t, r, e, n.hookToggle.enterHooks, o);});} else a.warn(s + " 路由地址在路由表中未找到，确定是否传递漏啦", e, !0);}return l.includes("*") && (t["*"] = o["*"]), t;}, t.buildVueRouter = function (e, t, r) {var n;n = "[object Array]" === i.getDataType(r) ? r : Object.values(r);var a = e.options.h5,u = a.scrollBehavior,l = a.fallback,p = t.options.scrollBehavior;t.options.scrollBehavior = function (e, t, r) {return p && p(e, t, r), u(e, t, r);}, t.fallback = l;var c = new t.constructor(o(o({}, e.options.h5), { base: t.options.base, mode: t.options.mode, routes: n }));t.matcher = c.matcher;};}, 147: function _(e, t) {"use strict";var _r,o = this && this.__extends || (_r = function r(e, t) {return (_r = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (e, t) {e.__proto__ = t;} || function (e, t) {for (var r in t) {Object.prototype.hasOwnProperty.call(t, r) && (e[r] = t[r]);}})(e, t);}, function (e, t) {function o() {this.constructor = e;}_r(e, t), e.prototype = null === t ? Object.create(t) : (o.prototype = t.prototype, new o());});Object.defineProperty(t, "__esModule", { value: !0 }), t.proxyH5Mount = t.proxyEachHook = t.MyArray = void 0;var n = function (e) {function t(r, o, n, a) {var i = e.call(this) || this;return i.router = r, i.vueEachArray = o, i.myEachHook = n, i.hookName = a, Object.setPrototypeOf(i, t.prototype), i;}return o(t, e), t.prototype.push = function (e) {var t = this;this.vueEachArray.push(e);var r = this.length;this[this.length] = function (e, o, n) {r > 0 ? t.vueEachArray[r](e, o, function () {n && n();}) : t.myEachHook(e, o, function (a) {!1 === a ? n(!1) : t.vueEachArray[r](e, o, function (e) {n(a);});}, t.router, !0);};}, t;}(Array);t.MyArray = n, t.proxyEachHook = function (e, t) {for (var r = ["beforeHooks", "afterHooks"], o = 0; o < r.length; o++) {var a = r[o],i = e.lifeCycle[a][0];if (i) {var u = t[a];t[a] = new n(e, u, i, a);}}}, t.proxyH5Mount = function (e) {var t;if (0 === e.mount.length) {if (null === (t = e.options.h5) || void 0 === t ? void 0 : t.vueRouterDev) return;navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) && setTimeout(function () {if (document.getElementsByTagName("uni-page").length > 0) return !1;window.location.reload();}, 0);} else e.mount[0].app.$mount(), e.mount = [];};}, 814: function _(e, t) {"use strict";var r = this && this.__assign || function () {return (r = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.runtimeQuit = t.registerLoddingPage = void 0;var o = null;t.registerLoddingPage = function (e) {var t = e.options.APP,o = t.loddingPageHook,n = t.loddingPageStyle;o(new plus.nativeObj.View("router-loadding", r({ top: "0px", left: "0px", height: "100%", width: "100%" }, n())));}, t.runtimeQuit = function (e) {void 0 === e && (e = "再按一次退出应用");var t = +new Date();o ? t - o < 1e3 && plus.runtime.quit() : (o = t, uni.showToast({ title: e, icon: "none", position: "bottom", duration: 1e3 }), setTimeout(function () {o = null;}, 1e3));};}, 334: function _(e, t) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 }), t.getEnterPath = void 0, t.getEnterPath = function (e, t) {switch (t.options.platform) {case "mp-alipay":case "mp-weixin":case "mp-toutiao":case "mp-qq":return e.$options.mpInstance.route;case "mp-baidu":return e.$options.mpInstance.is || e.$options.mpInstance.pageinstance.route;}return e.$options.mpInstance.route;};}, 282: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);},n = this && this.__rest || function (e, t) {var r = {};for (var o in e) {Object.prototype.hasOwnProperty.call(e, o) && t.indexOf(o) < 0 && (r[o] = e[o]);}if (null != e && "function" == typeof Object.getOwnPropertySymbols) {var n = 0;for (o = Object.getOwnPropertySymbols(e); n < o.length; n++) {t.indexOf(o[n]) < 0 && Object.prototype.propertyIsEnumerable.call(e, o[n]) && (r[o[n]] = e[o[n]]);}}return r;};Object.defineProperty(t, "__esModule", { value: !0 }), t.notCallProxyHook = t.proxyVueSortHookName = t.indexProxyHook = t.appProxyHook = t.lifeCycle = t.baseConfig = t.keyword = t.mpPlatformReg = void 0;var a = r(883),i = r(789);t.mpPlatformReg = /(^mp-weixin$)|(^mp-baidu$)|(^mp-alipay$)|(^mp-toutiao$)|(^mp-qq$)|(^mp-360$)/g, t.keyword = ["query"], t.baseConfig = { h5: { paramsToQuery: !1, vueRouterDev: !1, vueNext: !1, mode: "hash", base: "/", linkActiveClass: "router-link-active", linkExactActiveClass: "router-link-exact-active", scrollBehavior: function scrollBehavior(e, t, r) {return { x: 0, y: 0 };}, fallback: !0 }, APP: { loddingPageStyle: function loddingPageStyle() {return JSON.parse('{"backgroundColor":"#FFF"}');}, loddingPageHook: function loddingPageHook(e) {e.show();}, launchedHook: function launchedHook() {plus.navigator.closeSplashscreen();}, animation: {} }, platform: "h5", keepUniOriginNav: !1, debugger: !1, routerBeforeEach: function routerBeforeEach(e, t, r) {r();}, routerAfterEach: function routerAfterEach(e, t) {}, routerErrorEach: function routerErrorEach(e, t) {t.$lockStatus = !1, a.err(e, t, !0);}, detectBeforeLock: function detectBeforeLock(e, t, r) {}, routes: [{ path: "/choose-location" }, { path: "/open-location" }, { path: "/preview-image" }] }, t.lifeCycle = { beforeHooks: [], afterHooks: [], routerBeforeHooks: [], routerAfterHooks: [], routerErrorHooks: [] }, t.appProxyHook = { app: { created: [], beforeMount: [], mounted: [], onLaunch: [], onShow: [], onHide: [], beforeDestroy: [], destroyed: [] } }, t.indexProxyHook = { app: t.appProxyHook.app, page: function (e) {e.onLaunch;var t = n(e, ["onLaunch"]);return o(o({}, t), { onLoad: [], onReady: [], onUnload: [], onResize: [] });}(i.copyData(t.appProxyHook.app)), component: [] }, t.proxyVueSortHookName = { app: ["created", "beforeMount", "mounted", "onLaunch", "onShow", "onHide", "beforeDestroy", "destroyed"], page: ["created", "beforeMount", "mounted", "onLoad", "onReady", "onShow", "onResize", "onHide", "beforeDestroy", "destroyed", "onUnload"], component: ["created", "beforeMount", "mounted", "beforeDestroy", "destroyed"] }, t.notCallProxyHook = ["onHide", "beforeDestroy", "destroyed", "destroyed", "onUnload", "onResize"];}, 801: function _(e, t, r) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 }), t.createRouteMap = void 0;var o = r(883),n = r(789);t.createRouteMap = function (e, t) {var r = { finallyPathList: [], finallyPathMap: Object.create(null), aliasPathMap: Object.create(null), pathMap: Object.create(null), vueRouteMap: Object.create(null), nameMap: Object.create(null) };return t.forEach(function (t) {var a = n.getRoutePath(t, e),i = a.finallyPath,u = a.aliasPath,l = a.path;if (null == l) throw new Error("请提供一个完整的路由对象，包括以绝对路径开始的 ‘path’ 字符串 " + JSON.stringify(t));if (i instanceof Array && !e.options.h5.vueRouterDev && "h5" === e.options.platform) throw new Error("非 vueRouterDev 模式下，route.alias 目前无法提供数组类型！ " + JSON.stringify(t));var p = i,c = u;"h5" !== e.options.platform && 0 !== p.indexOf("/") && "*" !== l && o.warn("当前路由对象下，route：" + JSON.stringify(t) + " 是否缺少了前缀 ‘/’", e, !0), r.finallyPathMap[p] || (r.finallyPathMap[p] = t, r.aliasPathMap[c] = t, r.pathMap[l] = t, r.finallyPathList.push(p), null != t.name && (r.nameMap[t.name] = t));}), r;};}, 662: function _(e, t, r) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 }), t.registerEachHooks = t.registerRouterHooks = t.registerHook = void 0;var o = r(366),n = r(169);function a(e, t) {e[0] = t;}t.registerHook = a, t.registerRouterHooks = function (e, t) {return a(e.routerBeforeHooks, function (e, r, o) {t.routerBeforeEach(e, r, o);}), a(e.routerAfterHooks, function (e, r) {t.routerAfterEach(e, r);}), a(e.routerErrorHooks, function (e, r) {t.routerErrorEach(e, r);}), e;}, t.registerEachHooks = function (e, t, r) {a(e.lifeCycle[t], function (e, a, i, u, l) {l ? n.onTriggerEachHook(e, a, u, o.hookToggle[t], i) : r(e, a, i);});};}, 460: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.initMixins = t.getMixins = void 0;var n = r(801),a = r(844),i = r(147),u = r(282),l = r(814),p = r(845),c = r(890),s = r(789),f = r(334),h = !1,y = !1,v = { app: !1, page: "" };function g(e, t) {var r = t.options.platform;return u.mpPlatformReg.test(r) && (r = "app-lets"), { h5: { beforeCreate: function beforeCreate() {var e;if (this.$options.router) {t.$route = this.$options.router;var r = [];(null === (e = t.options.h5) || void 0 === e ? void 0 : e.vueRouterDev) ? r = t.options.routes : (r = n.createRouteMap(t, this.$options.router.options.routes).finallyPathMap, t.routesMap.vueRouteMap = r, a.buildVueRoutes(t, r)), a.buildVueRouter(t, this.$options.router, r), i.proxyEachHook(t, this.$options.router);}} }, "app-plus": { beforeCreate: function beforeCreate() {h || (h = !0, p.proxyPageHook(this, t, "appProxyHook", "app"), l.registerLoddingPage(t));} }, "app-lets": { beforeCreate: function beforeCreate() {var e = this.$options.mpType;"component" !== e || y ? "component" !== e && (v[e] || ("page" === e ? (v[e] = f.getEnterPath(this, t), t.enterPath = v[e]) : v[e] = !0, p.proxyPageHook(this, t, "appletsProxyHook", e))) : s.assertParentChild(v.page, this) && p.proxyPageHook(this, t, "appletsProxyHook", e);}, onLoad: function onLoad() {!y && s.assertParentChild(v.page, this) && (y = !0, c.forceGuardEach(t));} } }[r];}t.getMixins = g, t.initMixins = function (e, t) {var r = n.createRouteMap(t, t.options.routes);t.routesMap = r, e.mixin(o({}, g(0, t)));};}, 789: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);},n = this && this.__rest || function (e, t) {var r = {};for (var o in e) {Object.prototype.hasOwnProperty.call(e, o) && t.indexOf(o) < 0 && (r[o] = e[o]);}if (null != e && "function" == typeof Object.getOwnPropertySymbols) {var n = 0;for (o = Object.getOwnPropertySymbols(e); n < o.length; n++) {t.indexOf(o[n]) < 0 && Object.prototype.propertyIsEnumerable.call(e, o[n]) && (r[o[n]] = e[o[n]]);}}return r;},a = this && this.__spreadArrays || function () {for (var e = 0, t = 0, r = arguments.length; t < r; t++) {e += arguments[t].length;}var o = Array(e),n = 0;for (t = 0; t < r; t++) {for (var a = arguments[t], i = 0, u = a.length; i < u; i++, n++) {o[n] = a[i];}}return o;};Object.defineProperty(t, "__esModule", { value: !0 }), t.resolveAbsolutePath = t.assertParentChild = t.reservedWord = t.resetPageHook = t.callHook = t.replaceHook = t.lockDetectWarn = t.deepClone = t.baseClone = t.assertDeepObject = t.paramsToQuery = t.forMatNextToFrom = t.urlToJson = t.getUniCachePage = t.copyData = t.getDataType = t.routesForMapRoute = t.assertNewOptions = t.getRoutePath = t.notDeepClearNull = t.mergeConfig = t.def = t.voidFun = void 0;var i = r(282),u = r(169),l = r(883),p = r(890),c = r(779);function s(e, t) {for (var r = Object.create(null), n = Object.keys(e).concat(["resolveQuery", "parseQuery"]), i = 0; i < n.length; i += 1) {var u = n[i];null != t[u] ? t[u].constructor === Object ? r[u] = o(o({}, e[u]), t[u]) : r[u] = "routes" === u ? a(e[u], t[u]) : t[u] : r[u] = e[u];}return r;}function f(e, t) {var r = e.aliasPath || e.alias || e.path;return "h5" !== t.options.platform && (r = e.path), { finallyPath: r, aliasPath: e.aliasPath || e.path, path: e.path, alias: e.alias };}function h(e) {return Object.prototype.toString.call(e);}function y(e) {return JSON.parse(JSON.stringify(e));}function v(e, t) {for (var r = 0, o = Object.keys(e); r < o.length; r++) {var n = o[r],a = n;e[n] !== e && ("object" == typeof e[n] ? (t[a] = "[object Array]" === h(e[n]) ? [] : {}, v(e[n], t[a])) : t[a] = e[n]);}}function g(e) {var t = "[object Array]" === h(e) ? [] : {};return v(e, t), t;}function d(e, t) {for (var r = [], o = 0, n = Object.entries(e); o < n.length; o++) {var a = n[o][1][0];a && a.hook && r.push(a.hook(t));}return r;}t.voidFun = function () {}, t.def = function (e, t, r) {Object.defineProperty(e, t, { get: function get() {return r();} });}, t.mergeConfig = s, t.notDeepClearNull = function (e) {for (var t in e) {null == e[t] && delete e[t];}return e;}, t.getRoutePath = f, t.assertNewOptions = function (e) {var t,r = e.platform,o = e.routes;if (null == r) throw new Error("你在实例化路由时必须传递 'platform'");if (null == o || 0 === o.length) throw new Error("你在实例化路由时必须传递 routes 为空，这是无意义的。");return "h5" === e.platform && (null === (t = e.h5) || void 0 === t ? void 0 : t.vueRouterDev) && (i.baseConfig.routes = []), s(i.baseConfig, e);}, t.routesForMapRoute = function (e, t, r) {var o;if (null === (o = e.options.h5) || void 0 === o ? void 0 : o.vueRouterDev) return { path: t };for (var n = t.split("?")[0], a = "", i = e.routesMap, u = 0; u < r.length; u++) {for (var l = i[r[u]], p = 0, s = Object.entries(l); p < s.length; p++) {var f = s[p],y = f[0],v = f[1];if ("*" !== y) {var g = v,d = y;if ("[object Array]" === h(l) && (d = g), null != c(d).exec(n)) return "[object String]" === h(g) ? i.finallyPathMap[g] : g;} else "" === a && (a = "*");}}if ("" !== a) return i.finallyPathMap[a];throw new Error(t + " 路径无法在路由表中找到！检查跳转路径及路由表");}, t.getDataType = h, t.copyData = y, t.getUniCachePage = function (e) {var t = getCurrentPages();if (null == e) return t;if (0 === t.length) return t;var r = t.reverse()[e];return null == r ? [] : r;}, t.urlToJson = function (e) {var t = {},r = e.split("?"),o = r[0],n = r[1];if (null != n) for (var a = 0, i = n.split("&"); a < i.length; a++) {var u = i[a].split("=");t[u[0]] = u[1];}return { path: o, query: t };}, t.forMatNextToFrom = function (e, t, r) {var o = [t, r],n = o[0],a = o[1];if ("h5" === e.options.platform) {var i = e.options.h5,u = i.vueNext,l = i.vueRouterDev;u || l || (n = p.createRoute(e, void 0, n), a = p.createRoute(e, void 0, a));} else n = p.createRoute(e, void 0, g(n)), a = p.createRoute(e, void 0, g(a));return { matTo: n, matFrom: a };}, t.paramsToQuery = function (e, t) {var r;if ("h5" === e.options.platform && !(null === (r = e.options.h5) || void 0 === r ? void 0 : r.paramsToQuery)) return t;if ("[object Object]" === h(t)) {var a = t,i = a.name,l = a.params,p = n(a, ["name", "params"]),c = l;if ("h5" !== e.options.platform && null == c && (c = {}), null != i && null != c) {var s = e.routesMap.nameMap[i];null == s && u.ERRORHOOK[0]({ type: 2, msg: "命名路由为：" + i + " 的路由，无法在路由表中找到！", toRule: t }, e);var y = f(s, e).finallyPath;if (!y.includes(":")) return o(o({}, p), { path: y, query: c });u.ERRORHOOK[0]({ type: 2, msg: "动态路由：" + y + " 无法使用 paramsToQuery！", toRule: t }, e);}}return t;}, t.assertDeepObject = function (e) {var t = null;try {t = JSON.stringify(e).match(/\{|\[|\}|\]/g);} catch (e) {l.warnLock("传递的参数解析对象失败。" + e);}return null != t && t.length > 3;}, t.baseClone = v, t.deepClone = g, t.lockDetectWarn = function (e, t, r, o, n) {if ("afterHooks" === n) o();else {var a = e.options.detectBeforeLock;a && a(e, t, r), e.$lockStatus ? e.options.routerErrorEach({ type: 2, msg: "当前页面正在处于跳转状态，请稍后再进行跳转...." }, e) : o();}}, t.replaceHook = function (e, t, r, o) {var n = t.$options,a = e[r][o],u = {};if ("[object Array]" === h(a) && (u = { beforeCreate: [], created: [], beforeMount: [], mounted: [], beforeDestroy: [], destroyed: [] }), null != a) {for (var l = i.proxyVueSortHookName[o], p = function p(r) {var p = l[r],c = n[p];if ("[object Array]" === h(c)) {var s = { options: [], hook: Function },f = c.splice(c.length - 1, 1, function () {for (var e = [], t = 0; t < arguments.length; t++) {e[t] = arguments[t];}return s.options = e;})[0];s.hook = function (r) {return e.enterPath.replace(/^\//, "") !== r.replace(/^\//, "") && "app" !== o ? function () {} : (i.notCallProxyHook.includes(p) || f.apply(t, s.options), function () {c.splice(c.length - 1, 1, f);});}, Object.keys(u).length > 0 ? u[p] = [s] : a[p] = [s];}}, c = 0; c < l.length; c++) {p(c);}Object.keys(u).length > 0 && a.push(u);}}, t.callHook = d, t.resetPageHook = function (e, t) {var r = t.trim().match(/^(\/?[^\?\s]+)(\?[\s\S]*$)?$/);if (null == r) throw new Error("还原hook失败。请检查 【" + t + "】 路径是否正确。");t = r[1];var o = "appletsProxyHook";"app-plus" === e.options.platform && (o = "appProxyHook");for (var n = [], a = 0, i = Object.entries(e[o]); a < i.length; a++) {var u = i[a][1];if ("[object Array]" === h(u)) for (var l = 0; l < u.length; l++) {n = n.concat(d(u[l], t));} else n = n.concat(d(u, t));}setTimeout(function () {for (var e = 0; e < n.length; e++) {n[e]();}}, 500);}, t.reservedWord = function (e) {if ("string" == typeof e) return e;for (var t = o(o({}, y(e.params || {})), y(e.query || {})), r = 0; r < i.keyword.length; r++) {var n = i.keyword[r];Reflect.has(t, n) && ("[object Object]" === h(e.query) && delete e.query[n], "[object Object]" === h(e.params) && delete e.params[n], l.warnLock(JSON.stringify(i.keyword) + " 作为插件的保留字，在参数传递中不允许使用。已自动被过滤掉！换个参数名试试吧！ "));}return e;}, t.assertParentChild = function (e, t) {for (; null != t.$parent;) {var r = t.$parent.$mp;if (r.page && r.page.is === e) return !0;t = t.$parent;}try {if (t.$mp.page.is === e || t.$mp.page.route === e) return !0;} catch (e) {return !1;}return !1;}, t.resolveAbsolutePath = function (e, t) {var r = /^\/?([^\?\s]+)(\?.+)?$/,o = e.trim();if (!r.test(o)) throw new Error("【" + e + "】 路径错误，请提供完整的路径(10001)。");var n = o.match(r);if (null == n) throw new Error("【" + e + "】 路径错误，请提供完整的路径(10002)。");var a = n[2] || "";if (/^\.\/[^\.]+/.test(o)) return (t.currentRoute.path + e).replace(/[^\/]+\.\//, "");var i = n[1].replace(/\//g, "\\/").replace(/\.\./g, "[^\\/]+").replace(/\./g, "\\."),u = new RegExp("^\\/" + i + "$"),l = t.options.routes.filter(function (e) {return u.test(e.path);});if (1 !== l.length) throw new Error("【" + e + "】 路径错误，尝试转成绝对路径失败，请手动转成绝对路径(10003)。");return l[0].path + a;};}, 883: function _(e, t) {"use strict";function r(e, t, r, o) {if (void 0 === o && (o = !1), !o) {var n = "[object Object]" === t.toString();if (!1 === t) return !1;if (n && !1 === t[e]) return !1;}return console[e](r), !0;}Object.defineProperty(t, "__esModule", { value: !0 }), t.warnLock = t.log = t.warn = t.err = t.isLog = void 0, t.isLog = r, t.err = function (e, t, o) {r("error", t.options.debugger, e, o);}, t.warn = function (e, t, o) {r("warn", t.options.debugger, e, o);}, t.log = function (e, t, o) {r("log", t.options.debugger, e, o);}, t.warnLock = function (e) {console.warn(e);};}, 607: function _(e, t, r) {"use strict";var o = this && this.__createBinding || (Object.create ? function (e, t, r, o) {void 0 === o && (o = r), Object.defineProperty(e, o, { enumerable: !0, get: function get() {return t[r];} });} : function (e, t, r, o) {void 0 === o && (o = r), e[o] = t[r];}),n = this && this.__exportStar || function (e, t) {for (var r in e) {"default" === r || Object.prototype.hasOwnProperty.call(t, r) || o(t, e, r);}};Object.defineProperty(t, "__esModule", { value: !0 }), t.createRouter = t.RouterMount = t.runtimeQuit = void 0, n(r(366), t), n(r(309), t);var a = r(814);Object.defineProperty(t, "runtimeQuit", { enumerable: !0, get: function get() {return a.runtimeQuit;} });var i = r(963);Object.defineProperty(t, "RouterMount", { enumerable: !0, get: function get() {return i.RouterMount;} }), Object.defineProperty(t, "createRouter", { enumerable: !0, get: function get() {return i.createRouter;} });}, 366: function _(e, t) {"use strict";var r, o, n;Object.defineProperty(t, "__esModule", { value: !0 }), t.rewriteMethodToggle = t.navtypeToggle = t.hookToggle = void 0, (n = t.hookToggle || (t.hookToggle = {})).beforeHooks = "beforeEach", n.afterHooks = "afterEach", n.enterHooks = "beforeEnter", (o = t.navtypeToggle || (t.navtypeToggle = {})).push = "navigateTo", o.replace = "redirectTo", o.replaceAll = "reLaunch", o.pushTab = "switchTab", o.back = "navigateBack", (r = t.rewriteMethodToggle || (t.rewriteMethodToggle = {})).navigateTo = "push", r.navigate = "push", r.redirectTo = "replace", r.reLaunch = "replaceAll", r.switchTab = "pushTab", r.navigateBack = "back";}, 309: function _(e, t) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 });}, 169: function _(e, t, r) {"use strict";var o = this && this.__rest || function (e, t) {var r = {};for (var o in e) {Object.prototype.hasOwnProperty.call(e, o) && t.indexOf(o) < 0 && (r[o] = e[o]);}if (null != e && "function" == typeof Object.getOwnPropertySymbols) {var n = 0;for (o = Object.getOwnPropertySymbols(e); n < o.length; n++) {t.indexOf(o[n]) < 0 && Object.prototype.propertyIsEnumerable.call(e, o[n]) && (r[o[n]] = e[o[n]]);}}return r;};Object.defineProperty(t, "__esModule", { value: !0 }), t.loopCallHook = t.transitionTo = t.onTriggerEachHook = t.callHook = t.callBeforeRouteLeave = t.HOOKLIST = t.ERRORHOOK = void 0;var n = r(789),a = r(890),i = r(147);function u(e, t, r, o) {var a,i = n.getUniCachePage(0);if (Object.keys(i).length > 0) {var u = void 0;switch ("h5" === e.options.platform ? u = i.$options.beforeRouteLeave : null != i.$vm && (u = i.$vm.$options.beforeRouteLeave), n.getDataType(u)) {case "[object Array]":a = (a = u[0]).bind(i);break;case "[object Function]":a = u.bind(i.$vm);}}return l(a, t, r, e, o);}function l(e, t, r, o, n, a) {void 0 === a && (a = !0), null != e && e instanceof Function ? !0 === a ? e(t, r, n, o, !1) : (e(t, r, function () {}, o, !1), n()) : n();}function p(e, t, r, o, a, i) {var u = n.forMatNextToFrom(e, t, r),l = u.matTo,p = u.matFrom;"h5" === e.options.platform ? c(a, 0, i, e, l, p, o) : c(a.slice(0, 4), 0, function () {i(function () {c(a.slice(4), 0, n.voidFun, e, l, p, o);});}, e, l, p, o);}function c(e, r, i, u, l, p, s) {var f = n.routesForMapRoute(u, l.path, ["finallyPathMap", "pathMap"]);if (e.length - 1 < r) return i();var h = e[r],y = t.ERRORHOOK[0];h(u, l, p, f, function (t) {if (!1 === t) "h5" === u.options.platform && i(!1), y({ type: 0, msg: "管道函数传递 false 导航被终止!", matTo: l, matFrom: p, nextTo: t }, u);else if ("string" == typeof t || "object" == typeof t) {var n = s,f = t;if ("object" == typeof t) {var h = t.NAVTYPE;f = o(t, ["NAVTYPE"]), null != h && (n = h);}a.navjump(f, u, n, { from: p, next: i });} else null == t ? (r++, c(e, r, i, u, l, p, s)) : y({ type: 1, msg: "管道函数传递未知类型，无法被识别。导航被终止！", matTo: l, matFrom: p, nextTo: t }, u);});}t.ERRORHOOK = [function (e, t) {return t.lifeCycle.routerErrorHooks[0](e, t);}], t.HOOKLIST = [function (e, t, r, o, n) {return l(e.lifeCycle.routerBeforeHooks[0], t, r, e, n);}, function (e, t, r, o, n) {return u(e, t, r, n);}, function (e, t, r, o, n) {return l(e.lifeCycle.beforeHooks[0], t, r, e, n);}, function (e, t, r, o, n) {return l(o.beforeEnter, t, r, e, n);}, function (e, t, r, o, n) {return l(e.lifeCycle.afterHooks[0], t, r, e, n, !1);}, function (e, t, r, o, n) {return e.$lockStatus = !1, "h5" === e.options.platform && i.proxyH5Mount(e), l(e.lifeCycle.routerAfterHooks[0], t, r, e, n, !1);}], t.callBeforeRouteLeave = u, t.callHook = l, t.onTriggerEachHook = function (e, r, o, n, a) {var i = [];switch (n) {case "beforeEach":i = t.HOOKLIST.slice(0, 3);break;case "afterEach":i = t.HOOKLIST.slice(4);break;case "beforeEnter":i = t.HOOKLIST.slice(3, 4);}p(o, e, r, "push", i, a);}, t.transitionTo = p, t.loopCallHook = c;}, 890: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.createRoute = t.forceGuardEach = t.backOptionsBuild = t.navjump = t.lockNavjump = void 0;var n = r(366),a = r(99),i = r(789),u = r(169),l = r(845),p = r(169);function c(e, t, r, o, n) {i.lockDetectWarn(t, e, r, function () {"h5" !== t.options.platform && (t.$lockStatus = !0), s(e, t, r, void 0, o, n);});}function s(e, t, r, c, s, h) {if ("back" === r) {var y;if (y = "string" == typeof e ? +e : e.delta || 1, "h5" === t.options.platform) return void t.$route.go(-y);e = f(t, y, h);}e = i.reservedWord(e);var v = a.queryPageToMap(e, t).rule;v.type = n.navtypeToggle[r];var g = i.paramsToQuery(t, v),d = a.resolveQuery(g, t);if ("h5" === t.options.platform) {if ("push" !== r && (r = "replace"), null != c) c.next(o({ replace: "push" !== r }, d));else if ("push" === r && Reflect.has(d, "events")) {if (Reflect.has(d, "name")) throw new Error("在h5端上使用 'push'、'navigateTo' 跳转时，如果包含 events 不允许使用 name 跳转，因为 name 实现了动态路由。请更换为 path 或者 url 跳转！");uni.navigateTo(d, !0, i.voidFun, s);} else t.$route[r](d, d.success || i.voidFun, d.fail || i.voidFun);} else {var m = { path: "" };if (null == c) {var b = i.routesForMapRoute(t, d.path, ["finallyPathMap", "pathMap"]);d = o(o(o({}, b), { params: {} }), d), m = l.createToFrom(d, t);} else m = c.from;l.createFullPath(d, m), u.transitionTo(t, d, m, r, p.HOOKLIST, function (e) {uni[n.navtypeToggle[r]](d, !0, e, s);});}}function f(e, t, r) {var o = h(e, t),n = { path: o.path, query: o.query, delta: t };if ("[object Object]" === i.getDataType(r)) {var a = r,u = a.animationDuration,l = a.animationType;null != u && (n.animationDuration = u), null != l && (n.animationType = l);var p = r.from;null != p && (n.BACKTYPE = p);}return n;}function h(e, t, r) {void 0 === t && (t = 0);var u = { name: "", meta: {}, path: "", fullPath: "", NAVTYPE: "", query: {}, params: {}, BACKTYPE: (r || { BACKTYPE: "" }).BACKTYPE || "" };if (19970806 === t) return u;if ("h5" === e.options.platform) {var l = { path: "" };l = null != r ? r : e.$route.currentRoute;var p = i.copyData(l.params);delete p.__id__;var c = a.parseQuery(o(o({}, p), i.copyData(l.query)), e);l = o(o({}, l), { query: c }), u.path = l.path, u.fullPath = l.fullPath || "", u.query = l.query || {}, u.NAVTYPE = n.rewriteMethodToggle[l.type || "reLaunch"];} else {var s = {};if (null != r) s = o(o({}, r), { openType: r.type });else {var f = i.getUniCachePage(t);if (0 === Object.keys(f).length) throw e.options.routerErrorEach({ type: 3, msg: "不存在的页面栈，请确保有足够的页面可用，当前 level:" + t }, e), new Error("不存在的页面栈，请确保有足够的页面可用，当前 level:" + t);var h = f.options,y = h.query;null != y && 1 === Object.keys(h).length && (h = JSON.parse(decodeURIComponent(y)));var v = JSON.parse(decodeURIComponent(JSON.stringify(h)));s = o(o({}, f.$page), { query: v, fullPath: decodeURIComponent(f.$page.fullPath) }), "app-plus" !== e.options.platform && (s.path = "/" + f.route);}var g = s.openType;u.query = s.query, u.path = s.path, u.fullPath = s.fullPath, u.NAVTYPE = n.rewriteMethodToggle[g || "reLaunch"];}var d = i.routesForMapRoute(e, u.path, ["finallyPathMap", "pathMap"]),m = o(o({}, u), d);return m.query = a.parseQuery(m.query, e), m;}t.lockNavjump = c, t.navjump = s, t.backOptionsBuild = f, t.forceGuardEach = function (e, t, r) {if (void 0 === t && (t = "replaceAll"), void 0 === r && (r = !1), "h5" === e.options.platform) throw new Error("在h5端上使用：forceGuardEach 是无意义的，目前 forceGuardEach 仅支持在非h5端上使用");var o = i.getUniCachePage(0);0 === Object.keys(o).length && e.options.routerErrorEach({ type: 3, msg: "不存在的页面栈，请确保有足够的页面可用，当前 level:0" }, e);var n = o;c({ path: "/" + n.route, query: n.options }, e, t, r);}, t.createRoute = h;}, 845: function _(e, t, r) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 }), t.proxyPageHook = t.createFullPath = t.createToFrom = void 0;var o = r(789),n = r(890),a = r(99);t.createToFrom = function (e, t) {var r = o.getUniCachePage(0);return "[object Array]" === o.getDataType(r) ? o.deepClone(e) : n.createRoute(t);}, t.createFullPath = function (e, t) {if (null == e.fullPath) {var r = a.stringifyQuery(e.query);e.fullPath = e.path + r;}null == t.fullPath && (r = a.stringifyQuery(t.query), t.fullPath = t.path + r);}, t.proxyPageHook = function (e, t, r, n) {o.replaceHook(t, e, r, n);};}, 99: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.stringifyQuery = t.parseQuery = t.resolveQuery = t.queryPageToMap = void 0;var n = r(789),a = r(169),i = r(883),u = /[!'()*]/g,l = function l(e) {return "%" + e.charCodeAt(0).toString(16);},p = /%2C/g,c = function c(e) {return encodeURIComponent(e).replace(u, l).replace(p, ",");};t.queryPageToMap = function (e, t) {var r = {},i = "",u = e.success,l = e.fail;if ("[object Object]" === n.getDataType(e)) {var p = e;if (null != p.path) {var c = n.urlToJson(p.path),s = c.path,f = c.query;i = n.routesForMapRoute(t, s, ["finallyPathList", "pathMap"]), r = o(o({}, f), e.query || {}), p.path = s, p.query = r, delete e.params;} else null != p.name ? null == (i = t.routesMap.nameMap[p.name]) ? a.ERRORHOOK[0]({ type: 2, msg: "命名路由为：" + p.name + " 的路由，无法在路由表中找到！", toRule: e }, t) : (r = e.params || {}, delete e.query) : a.ERRORHOOK[0]({ type: 2, msg: e + " 解析失败，请检测当前路由表下是否有包含。", toRule: e }, t);} else e = n.urlToJson(e), i = n.routesForMapRoute(t, e.path, ["finallyPathList", "pathMap"]), r = e.query;if ("h5" === t.options.platform) {n.getRoutePath(i, t).finallyPath.includes(":") && null == e.name && a.ERRORHOOK[0]({ type: 2, msg: "当有设置 alias或者aliasPath 为动态路由时，不允许使用 path 跳转。请使用 name 跳转！", route: i }, t);var h = e.complete,y = e.success,v = e.fail;if ("[object Function]" === n.getDataType(h)) {var g = function g(e, t) {"[object Function]" === n.getDataType(t) && t.apply(this, e), h.apply(this, e);};u = function u() {for (var e = [], t = 0; t < arguments.length; t++) {e[t] = arguments[t];}g.call(this, e, y);}, l = function l() {for (var e = [], t = 0; t < arguments.length; t++) {e[t] = arguments[t];}g.call(this, e, v);};}}var d = e;return "[object Function]" === n.getDataType(d.success) && (d.success = u), "[object Function]" === n.getDataType(d.fail) && (d.fail = l), { rule: d, route: i, query: r };}, t.resolveQuery = function (e, t) {var r = "query";null != e.params && (r = "params"), null != e.query && (r = "query");var o = n.copyData(e[r] || {}),a = t.options.resolveQuery;if (a) {var u = a(o);"[object Object]" !== n.getDataType(u) ? i.warn("请按格式返回参数： resolveQuery?:(jsonQuery:{[propName: string]: any;})=>{[propName: string]: any;}", t) : e[r] = u;} else {if (!n.assertDeepObject(o)) return e;var l = JSON.stringify(o);e[r] = { query: l };}return e;}, t.parseQuery = function (e, t) {var r = t.options.parseQuery;if (r) e = r(n.copyData(e)), "[object Object]" !== n.getDataType(e) && i.warn("请按格式返回参数： parseQuery?:(jsonQuery:{[propName: string]: any;})=>{[propName: string]: any;}", t);else if (Reflect.get(e, "query")) {var o = Reflect.get(e, "query"),a = { query: decodeURIComponent(o) };try {if ("object" == typeof (a = JSON.parse(a.query))) return a;} catch (e) {i.warn("尝试解析深度对象失败，按原样输出。" + e, t);}}return e;}, t.stringifyQuery = function (e) {var t = e ? Object.keys(e).map(function (t) {var r = e[t];if (void 0 === r) return "";if (null === r) return c(t);if (Array.isArray(r)) {var o = [];return r.forEach(function (e) {void 0 !== e && (null === e ? o.push(c(t)) : o.push(c(t) + "=" + c(e)));}), o.join("&");}return c(t) + "=" + c(r);}).filter(function (e) {return e.length > 0;}).join("&") : null;return t ? "?" + t : "";};}, 314: function _(e, t, r) {"use strict";Object.defineProperty(t, "__esModule", { value: !0 }), t.rewriteMethod = void 0;var o = r(366),n = r(789),a = r(883),i = r(809),u = ["navigateTo", "redirectTo", "reLaunch", "switchTab", "navigateBack"];t.rewriteMethod = function (e) {!1 === e.options.keepUniOriginNav && u.forEach(function (t) {var r = uni[t];uni[t] = function (u, l, p, c) {void 0 === l && (l = !1), l ? i.uniOriginJump(e, r, t, u, p, c) : ("app-plus" === e.options.platform && 0 === Object.keys(e.appMain).length && (e.appMain = { NAVTYPE: t, path: u.url }), function (e, t, r) {if ("app-plus" === r.options.platform) {var i = null;e && (i = e.openType), null != i && "appLaunch" === i && (t = "reLaunch");}if ("reLaunch" === t && '{"url":"/"}' === JSON.stringify(e) && (a.warn("uni-app 原生方法：reLaunch({url:'/'}) 默认被重写啦！你可以使用 this.$Router.replaceAll() 或者 uni.reLaunch({url:'/?xxx=xxx'})", r, !0), t = "navigateBack", e = { from: "backbutton" }), "navigateBack" === t) {var u = 1;null == e && (e = { delta: 1 }), "[object Number]" === n.getDataType(e.delta) && (u = e.delta), r.back(u, e);} else {var l = o.rewriteMethodToggle[t],p = e.url;if (!p.startsWith("/")) {var c = n.resolveAbsolutePath(p, r);p = c, e.url = c;}if ("switchTab" === t) {var s = n.routesForMapRoute(r, p, ["pathMap", "finallyPathList"]),f = n.getRoutePath(s, r).finallyPath;"[object Array]" === n.getDataType(f) && a.warn("uni-app 原生方法跳转路径为：" + p + "。此路为是tab页面时，不允许设置 alias 为数组的情况，并且不能为动态路由！当然你可以通过通配符*解决！", r, !0), "*" === f && a.warn("uni-app 原生方法跳转路径为：" + p + "。在路由表中找不到相关路由表！当然你可以通过通配符*解决！", r, !0), p = f;}var h = e,y = h.events,v = h.success,g = h.fail,d = h.complete,m = h.animationType,b = { path: p, events: y, success: v, fail: g, complete: d, animationDuration: h.animationDuration, animationType: m };r[l](n.notDeepClearNull(b));}}(u, t, e));};});};}, 963: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);};Object.defineProperty(t, "__esModule", { value: !0 }), t.createRouter = t.RouterMount = void 0;var n = r(282),a = r(789),i = r(662),u = r(460),l = r(890),p = r(314),c = function c() {},s = new Promise(function (e) {return c = e;});t.createRouter = function (e) {var t = a.assertNewOptions(e),r = { options: t, mount: [], Vue: null, appProxyHook: n.appProxyHook, appletsProxyHook: n.indexProxyHook, appMain: {}, enterPath: "", $route: null, $lockStatus: !1, routesMap: {}, lifeCycle: i.registerRouterHooks(n.lifeCycle, t), push: function push(e) {l.lockNavjump(e, r, "push");}, replace: function replace(e) {l.lockNavjump(e, r, "replace");}, replaceAll: function replaceAll(e) {l.lockNavjump(e, r, "replaceAll");}, pushTab: function pushTab(e) {l.lockNavjump(e, r, "pushTab");}, back: function back(e, t) {void 0 === e && (e = 1), "[object Object]" !== a.getDataType(t) ? t = { from: "navigateBack" } : Reflect.has(t, "from") || (t = o(o({}, t), { from: "navigateBack" })), l.lockNavjump(e + "", r, "back", void 0, t);}, forceGuardEach: function forceGuardEach(e, t) {l.forceGuardEach(r, e, t);}, beforeEach: function beforeEach(e) {i.registerEachHooks(r, "beforeHooks", e);}, afterEach: function afterEach(e) {i.registerEachHooks(r, "afterHooks", e);}, install: function install(e) {r.Vue = e, p.rewriteMethod(this), u.initMixins(e, this), Object.defineProperty(e.prototype, "$Router", { get: function get() {return r;} }), Object.defineProperty(e.prototype, "$Route", { get: function get() {return l.createRoute(r);} }), Object.defineProperty(e.prototype, "$AppReady", { get: function get() {return "h5" === r.options.platform ? Promise.resolve() : s;}, set: function set(e) {!0 === e && c();} });} };return a.def(r, "keyword", function () {return n.keyword;}), a.def(r, "currentRoute", function () {return l.createRoute(r);}), r.beforeEach(function (e, t, r) {return r();}), r.afterEach(function () {}), r;}, t.RouterMount = function (e, t, r) {if (void 0 === r && (r = "#app"), "[object Array]" !== a.getDataType(t.mount)) throw new Error("挂载路由失败，router.app 应该为数组类型。当前类型：" + typeof t.mount);if (t.mount.push({ app: e, el: r }), "h5" === t.options.platform) {var o = t.$route;o.replace({ path: o.currentRoute.fullPath });}};}, 809: function _(e, t, r) {"use strict";var o = this && this.__assign || function () {return (o = Object.assign || function (e) {for (var t, r = 1, o = arguments.length; r < o; r++) {for (var n in t = arguments[r]) {Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n]);}}return e;}).apply(this, arguments);},n = this && this.__rest || function (e, t) {var r = {};for (var o in e) {Object.prototype.hasOwnProperty.call(e, o) && t.indexOf(o) < 0 && (r[o] = e[o]);}if (null != e && "function" == typeof Object.getOwnPropertySymbols) {var n = 0;for (o = Object.getOwnPropertySymbols(e); n < o.length; n++) {t.indexOf(o[n]) < 0 && Object.prototype.propertyIsEnumerable.call(e, o[n]) && (r[o[n]] = e[o[n]]);}}return r;};Object.defineProperty(t, "__esModule", { value: !0 }), t.formatOriginURLQuery = t.uniOriginJump = void 0;var a = r(99),i = r(789),u = 0;function l(e, t, r) {var n,u = t.url,l = t.path,p = t.query,c = t.animationType,s = t.animationDuration,f = t.events,h = t.success,y = t.fail,v = t.complete,g = t.delta,d = t.animation,m = a.stringifyQuery(p || {}),b = "" === m ? l || u : (l || u) + m,O = {};return "app-plus" === e.options.platform && "navigateBack" !== r && (O = (null === (n = e.options.APP) || void 0 === n ? void 0 : n.animation) || {}, O = o(o({}, O), d || {})), i.notDeepClearNull({ delta: g, url: b, animationType: c || O.animationType, animationDuration: s || O.animationDuration, events: f, success: h, fail: y, complete: v });}t.uniOriginJump = function (e, t, r, a, p, c) {var s = l(e, a, r),f = s.complete,h = n(s, ["complete"]);0 === u && "h5" !== e.options.platform && i.resetPageHook(e, h.url), null != c && !1 === c ? (0 === u && (u++, "h5" !== e.options.platform && (e.Vue.prototype.$AppReady = !0)), f && f.apply(null, { msg: "forceGuardEach强制触发并且不执行跳转" }), p && p.apply(null, { msg: "forceGuardEach强制触发并且不执行跳转" })) : "navigateBack" === r ? (t(o(o({}, h), { from: a.BACKTYPE })), p && p.apply(null)) : t(o(o({}, h), { complete: function complete() {for (var t, r = [], o = 0; o < arguments.length; o++) {r[o] = arguments[o];}if (0 === u && (u++, "h5" !== e.options.platform && (e.Vue.prototype.$AppReady = !0), "app-plus" === e.options.platform)) {var n = plus.nativeObj.View.getViewById("router-loadding");n && n.close();var a = null === (t = e.options.APP) || void 0 === t ? void 0 : t.launchedHook;a && a();}f && f.apply(null, r), p && p.apply(null, r);} }));}, t.formatOriginURLQuery = l;} }, t = {}, function r(o) {if (t[o]) return t[o].exports;var n = t[o] = { exports: {} };return e[o].call(n.exports, n, n.exports, r), n.exports;}(607);var e, t;});
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
+
+/***/ 23:
+/*!****************************************************************************!*\
+  !*** /Users/wangsl/Documents/HBuilderProjects/小程序测试/common/store/types.js ***!
+  \****************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.MESSAGE_IDS = exports.FORCE_OAUTH = exports.LOGIN_TIP = exports.CART_NUM = exports.CART_LIST = exports.OUT_LOGIN = exports.ORDER_NUMBER = exports.AGENT_INFO = exports.USER_INFO = exports.TEMPLATE_DATA = exports.PAGE_ROUTES = exports.INIT_DATA = void 0;var INIT_DATA = 'INIT_DATA'; //初始化数据
+exports.INIT_DATA = INIT_DATA;var PAGE_ROUTES = 'PAGE_ROUTES'; //路由表
+exports.PAGE_ROUTES = PAGE_ROUTES;var TEMPLATE_DATA = 'TEMPLATE_DATA'; //模板信息
+exports.TEMPLATE_DATA = TEMPLATE_DATA;var USER_INFO = 'USER_INFO'; //用户信息
+exports.USER_INFO = USER_INFO;var AGENT_INFO = 'AGENT_INFO'; //分销商
+exports.AGENT_INFO = AGENT_INFO;var ORDER_NUMBER = 'ORDER_NUMBER'; //订单数量
+exports.ORDER_NUMBER = ORDER_NUMBER;var OUT_LOGIN = 'OUT_LOGIN'; //退出登录
+exports.OUT_LOGIN = OUT_LOGIN;var CART_LIST = 'CART_LIST'; //购物车商品
+exports.CART_LIST = CART_LIST;var CART_NUM = 'CART_NUM'; //购物车商品数
+exports.CART_NUM = CART_NUM;var LOGIN_TIP = 'LOGIN_TIP'; //登录提示
+exports.LOGIN_TIP = LOGIN_TIP;
+var FORCE_OAUTH = 'FORCE_OAUTH'; // 小程序强制登录弹窗
+exports.FORCE_OAUTH = FORCE_OAUTH;
+var MESSAGE_IDS = 'MESSAGE_IDS'; // 小程序订阅消息模板ids
+exports.MESSAGE_IDS = MESSAGE_IDS;
 
 /***/ }),
 
